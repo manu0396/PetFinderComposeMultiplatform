@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.composeMultiplatform) // Habilita Compose Multiplatform
-    alias(libs.plugins.composeCompiler)      // Necesario para Kotlin 2.x
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
@@ -29,7 +29,6 @@ android {
     namespace = "com.example.components"
     compileSdk = 36
 
-    // ESTO ES OBLIGATORIO para que el IDE reconozca Compose en Android
     buildFeatures {
         compose = true
     }
