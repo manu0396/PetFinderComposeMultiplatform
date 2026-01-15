@@ -1,12 +1,39 @@
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val unsplashKey = localProperties.getProperty("unsplash.api.key") ?: ""
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.buildkonfig)
+}
+
+buildkonfig {
+    packageName = "com.example.petfinder"
+    defaultConfigs {
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "UNSPLASH_KEY",
+            unsplashKey
+        )
+    }
 }
 
 kotlin {
-    androidTarget()
+    androidTarget{
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
 
     listOf(iosArm64(), iosSimulatorArm64()).forEach {
         it.binaries.framework {

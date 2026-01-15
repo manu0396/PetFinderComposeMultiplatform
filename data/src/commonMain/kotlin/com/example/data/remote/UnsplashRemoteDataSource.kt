@@ -5,12 +5,15 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 
-class UnsplashRemoteDataSource(private val client: HttpClient) {
+class UnsplashRemoteDataSource(
+    private val client: HttpClient,
+    private val apiKey: String
+) {
 
     suspend fun searchAnimalImages(query: String): UnsplashResponse {
         return client.get("https://api.unsplash.com/search/photos") {
             parameter("query", query)
-            parameter("client_id", "TU_KEY")
+            parameter("client_id", apiKey)
         }.body<UnsplashResponse>()
     }
 }
