@@ -3,5 +3,5 @@ package com.example.domain.repository
 import com.example.domain.model.Animal
 
 interface AnimalRepository {
-    suspend fun getAnimalImages(animalType: String): List<Animal>
+    suspend fun getAnimalImages(query: String): List<Animal>
 }
