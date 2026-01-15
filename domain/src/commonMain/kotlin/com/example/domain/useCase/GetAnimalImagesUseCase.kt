@@ -1,5 +1,6 @@
 package com.example.domain.useCase
 
+import com.example.domain.model.Animal
 import com.example.domain.model.AnimalImage
 import com.example.domain.repository.AnimalRepository
 
@@ -8,7 +9,7 @@ class GetAnimalImagesUseCase(
 ) {
     private val allowedAnimals = listOf("dog", "cat", "rabbit", "bird", "hamster")
 
-    suspend operator fun invoke(animalType: String): List<AnimalImage> {
+    suspend operator fun invoke(animalType: String = "animals"): List<Animal> {
         val query = if (animalType.lowercase() in allowedAnimals) {
             animalType.lowercase()
         } else {

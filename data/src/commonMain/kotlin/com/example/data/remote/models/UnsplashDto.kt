@@ -10,6 +10,8 @@ data class UnsplashResponse(
 @Serializable
 data class UnsplashImageDto(
     val id: String,
+    val name: String?,
+    val tags: List<String>,
     val urls: ImageUrlsDto,
     val description: String?
 )

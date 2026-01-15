@@ -1,7 +1,7 @@
 package com.example.domain.repository
 
-import com.example.domain.model.AnimalImage
+import com.example.domain.model.Animal
 
 interface AnimalRepository {
-    suspend fun getAnimalImages(animalType: String): List<AnimalImage>
+    suspend fun getAnimalImages(animalType: String): List<Animal>
 }
