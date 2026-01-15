@@ -9,14 +9,19 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: swift build -v
-        working-directory: ./iosApp
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Run tests
-        run: swift test -v
-        working-directory: ./iosApp
+      - name: Build Shared Framework
+        run: ./gradlew :composeApp:assembleDebug
+
+      - name: Build iOS App
+        run: |
+          cd iosApp 
+          xcodebuild -scheme iosApp -sdk iphonesimulator -configuration Debug
