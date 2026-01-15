@@ -10,13 +10,13 @@ jobs:
   build:
     runs-on: macos-latest
 
-    defaults:
-      run:
-        working-directory: ./iosApp
-
     steps:
       - uses: actions/checkout@v4
+
       - name: Build
         run: swift build -v
+        working-directory: ./iosApp
+
       - name: Run tests
         run: swift test -v
+        working-directory: ./iosApp
