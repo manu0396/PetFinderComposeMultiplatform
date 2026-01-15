@@ -1,23 +1,28 @@
-// androidapp/build.gradle.kts
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid) // Asegúrate de que esto esté en tu version catalog
+    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeCompiler)
 }
 
 android {
-    namespace = "com.example.androidapp"
-    compileSdk = 36
+    namespace = "com.example.petfinder.android"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.androidapp"
+        applicationId = "com.example.petfinder"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
     }
 
-    // Configuración de Java/Kotlin para módulos Android nativos
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/previous-compilation-data.bin"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -27,9 +32,9 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
-    // Si moviste el manifest como hablamos antes:
     sourceSets {
         getByName("main") {
             manifest.srcFile("src/main/AndroidManifest.xml")
@@ -50,4 +55,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 }

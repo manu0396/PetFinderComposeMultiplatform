@@ -7,29 +7,43 @@ plugins {
 
 kotlin {
     androidTarget {
-        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11) }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
-        iosTarget.binaries.framework { baseName = "components" }
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "components"
+            isStatic = true
+        }
     }
 
     sourceSets {
         commonMain.dependencies {
-            // Usa el objeto 'compose' proporcionado por el plugin
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.components.resources)
         }
     }
 }
 
-android {
-    namespace = "com.example.components"
-    compileSdk = 36
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.example.petfinder.components"
+}
 
-    buildFeatures {
-        compose = true
+android {
+    namespace = "com.example.petfinder.components"
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 24
     }
 }

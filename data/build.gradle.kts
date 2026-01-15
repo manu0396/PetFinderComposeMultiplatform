@@ -1,14 +1,14 @@
-// data/build.gradle.kts
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
     androidTarget {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 
@@ -18,6 +18,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":data-core"))
+            implementation(project(":domain"))
+            implementation(libs.kotlin.stdlib)
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
             implementation(libs.kotlinx.coroutines.core)
@@ -25,10 +27,10 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
-            // Coroutines para el Flow
             implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {
+            implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
         }
         iosMain.dependencies {
@@ -39,12 +41,12 @@ kotlin {
 
 android {
     namespace = "com.example.data"
-    compileSdk = 36
+    compileSdk = 35
     defaultConfig { minSdk = 24 }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

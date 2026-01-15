@@ -19,4 +19,13 @@ val networkModule = module {
         }
     }
 }
-
+fun createHttpClient() = HttpClient {
+    install(ContentNegotiation) {
+        json(Json {
+            ignoreUnknownKeys = true
+            prettyPrint = true
+            isLenient = true
+        })
+    }
+    // Add AuthInterceptor para el token
+}
