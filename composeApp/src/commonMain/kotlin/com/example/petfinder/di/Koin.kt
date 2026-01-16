@@ -38,7 +38,7 @@ fun initKoin(
 
 val commonModules = module {
     single { GetAnimalImagesUseCase(get()) }
-    viewModel {
+    single {
         AnimalViewModel(
             get(),
              get(),

@@ -7,4 +7,5 @@ interface AnimalRepository {
     suspend fun searchAnimals(query: String): List<Animal>
     fun toogleFavorite(animal: Animal)
     fun isFavorite(id: String): Flow<Boolean>
+    fun getFavorites(): Flow<List<Animal>>
 }

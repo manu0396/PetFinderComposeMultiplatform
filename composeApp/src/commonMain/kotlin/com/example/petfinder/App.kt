@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.petfinder.ui.screens.AnimalSearchScreen
+import com.example.petfinder.ui.screens.AnimalsListScreen
 import com.example.petfinder.ui.screens.FavoritesScreen
 
 @Composable

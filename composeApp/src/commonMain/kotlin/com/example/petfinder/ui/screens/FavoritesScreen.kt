@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.petfinder.ui.components.AnimalItem
@@ -32,20 +33,20 @@ fun FavoritesScreen(
         }
     ) { padding ->
         if (favorites.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("No tienes favoritos aún")
             }
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = androidx.compose.ui.Modifier.padding(padding).fillMaxSize(),
+                modifier = Modifier.padding(padding).fillMaxSize(),
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(favorites) { animal ->
                     AnimalItem(
                         animal = animal,
                         isFavorite = true,
-                        onFavoriteClick = { viewModel.toogleFavorite(animal) }
+                        onFavoriteClick = { viewModel.toggleFavorite(animal) }
                     )
                 }
             }

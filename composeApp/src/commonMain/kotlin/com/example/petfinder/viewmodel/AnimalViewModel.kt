@@ -29,29 +29,40 @@ class AnimalViewModel(
     ) : ViewModel() {
     private val TAG = "AnimalViewModel"
 
-    val favorites = favoriteRepository.getFavorites()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
+    val favorites: StateFlow<List<Animal>> = favoriteRepository.getFavorites()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     private val _state = MutableStateFlow<AnimalUiState>(AnimalUiState.Success(emptyList()))
     val state = _state.asStateFlow()
+
+    var lastQuery: String = ""
+        private set
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         println("!!! FATAL_VM: Error en Corrutina: ${throwable.message}")
         throwable.printStackTrace()
     }
 
-    val favoriteIds: StateFlow<Set<String>> = favoriteRepository.getFavorites()
-        .map { list -> list.map { it.id }.toSet() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
-
     fun toggleFavorite(animal: Animal) {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             favoriteRepository.toggleFavorite(animal)
         }
     }
 
     fun searchAnimals(query: String) {
         logger.d(TAG, "Searching animals for query: $query")
+        if (query == lastQuery && _state.value is AnimalUiState.Success) {
+            val currentList = (_state.value as AnimalUiState.Success).animals
+            if (currentList.isNotEmpty()) {
+                logger.d(TAG, "Restoring previous search results for: $query")
+                return
+            }
+        }
+
+        lastQuery = query
         _state.value = AnimalUiState.Loading
 
         viewModelScope.launch(errorHandler) {
@@ -71,10 +82,6 @@ class AnimalViewModel(
                     _state.value = AnimalUiState.Error(error.message ?: "Unknown error")
                 }
         }
-    }
-
-    fun toogleFavorite(animal: Animal) {
-
     }
 }
 

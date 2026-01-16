@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.example.data.db.AnimalDb
+import com.example.data.mapper.toDomain
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.data.remote.models.UnsplashPhotoDto
 import com.example.domain.model.Animal
@@ -53,6 +54,15 @@ class AnimalRepositoryImpl(
             )
         }
     }
+    override fun getFavorites(): Flow<List<Animal>> {
+        return queries.selectAllFavorites() // Query en tu .sq
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { entities ->
+                entities.map { it.toDomain() }
+            }
+    }
+
     override fun isFavorite(id: String): Flow<Boolean> {
         return queries.selectFavoriteById(id)
             .asFlow()

@@ -29,7 +29,8 @@ fun AnimalSearchScreen(
     viewModel: AnimalViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
+    val favorites by viewModel.favorites.collectAsState()
+    var searchQuery by remember { mutableStateOf(viewModel.lastQuery) }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -40,6 +41,7 @@ fun AnimalSearchScreen(
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Search (dog, cat...)") },
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 viewModel.searchAnimals(searchQuery)
@@ -49,6 +51,11 @@ fun AnimalSearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        AnimalsListScreen(state = state)
+        AnimalsListScreen(
+            state = state,
+            favorites = favorites,
+            onToggleFavorite = { animal -> viewModel.toggleFavorite(animal) },
+            modifier = Modifier.weight(1f) // Para que ocupe el espacio restante
+        )
     }
 }
