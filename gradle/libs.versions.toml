@@ -31,6 +31,7 @@ firebase-bom = "33.1.0"
 compose-plugin = "1.7.0"
 buildKonfig = "0.15.1"
 kotlinx-datetime = "0.6.0"
+detekt = "1.23.6"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
@@ -100,3 +101,4 @@ androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.lib
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

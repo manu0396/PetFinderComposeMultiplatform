@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Running Quality Checks before pushing..."
+GIT_ROOT=$(git rev-parse --show-toplevel)
+cd "$GIT_ROOT" || { echo "Could not find git root"; exit 1; }
+./gradlew testDebugUnitTest
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+  echo "Tests failed! Fix them before pushing."
+  exit 1
+fi
+echo "Tests passed. Pushing code..."
+exit 0

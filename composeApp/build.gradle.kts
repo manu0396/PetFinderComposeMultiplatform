@@ -80,6 +80,10 @@ kotlin {
             implementation(libs.koin.android)
         }
         iosMain.dependencies { }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }
 
