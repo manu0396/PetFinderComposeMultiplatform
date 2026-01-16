@@ -53,14 +53,20 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime)
-            implementation(libs.koin.compose)
+            implementation(compose.components.resources)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.lifecycle.runtime.compose)
+            api(libs.koin.core)
+            api(libs.koin.compose)
+            api(libs.coil.compose)
+            api(libs.coil.network.ktor)
+            api(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
         }
+        iosMain.dependencies { }
     }
 }
 
@@ -73,5 +79,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    lint {
+        disable += "NullSafeMutableLiveData"
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 }

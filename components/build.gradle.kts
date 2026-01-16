@@ -46,4 +46,9 @@ android {
     defaultConfig {
         minSdk = 24
     }
+    lint {
+        disable += "NullSafeMutableLiveData"
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
 }

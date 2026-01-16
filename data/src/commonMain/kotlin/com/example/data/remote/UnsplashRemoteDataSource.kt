@@ -14,6 +14,7 @@ class UnsplashRemoteDataSource(
         return client.get("https://api.unsplash.com/search/photos") {
             parameter("query", query)
             parameter("client_id", apiKey)
+            parameter("per_page", 20)
         }.body<UnsplashResponse>()
     }
 }

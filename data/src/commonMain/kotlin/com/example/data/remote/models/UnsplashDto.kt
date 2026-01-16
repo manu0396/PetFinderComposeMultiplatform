@@ -1,5 +1,6 @@
 package com.example.data.remote.models
 
+import com.example.domain.model.Animal
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,4 +21,12 @@ data class UnsplashImageDto(
 data class ImageUrlsDto(
     val regular: String,
     val small: String
+)
+
+fun UnsplashImageDto.toDomain(): Animal = Animal(
+    id = this.id,
+    name = this.name ?: "Pet",
+    imageUrl = this.urls.regular,
+    description = this.description,
+    tags = this.tags
 )
