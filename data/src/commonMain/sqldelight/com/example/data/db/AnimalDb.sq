@@ -1,0 +1,23 @@
+CREATE TABLE FavoriteAnimal (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    imageUrl TEXT NOT NULL,
+    createdAt INTEGER NOT NULL
+);
+
+insertFavorite:
+INSERT OR REPLACE INTO FavoriteAnimal(id, name, description, imageUrl, createdAt)
+VALUES (?, ?, ?, ?, ?);
+
+deleteFavorite:
+DELETE FROM FavoriteAnimal WHERE id = ?;
+
+selectAllFavorites:
+SELECT * FROM FavoriteAnimal ORDER BY createdAt DESC;
+
+isFavorite:
+SELECT EXISTS(SELECT 1 FROM FavoriteAnimal WHERE id = ?);
+
+selectFavoriteById:
+SELECT * FROM FavoriteAnimal WHERE id = ?;

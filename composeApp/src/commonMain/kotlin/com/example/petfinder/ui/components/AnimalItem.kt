@@ -1,12 +1,20 @@
 package com.example.petfinder.ui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -17,30 +25,55 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 
 @Composable
-fun AnimalItem(animal: Animal, modifier: Modifier = Modifier) {
+fun AnimalItem(
+    animal: Animal,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
         Column {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(animal.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = animal.description,
-                modifier = Modifier
-                    .height(150.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalPlatformContext.current)
+                        .data(animal.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = animal.description,
+                    modifier = Modifier
+                        .height(150.dp)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
 
-            Text(
-                text = animal.name,
-                modifier = Modifier.padding(8.dp),
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
-            )
+                IconButton(
+                    onClick = onFavoriteClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Toggle Favorite",
+                        tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = animal.name,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = animal.description,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

@@ -18,8 +18,7 @@ actual val platformModule: Module = module {
     single<AppLogger> { IosLogger() }
     single {
         UnsplashRemoteDataSource(
-            client = get(),
-            apiKey = BuildKonfig.UNSPLASH_KEY
+            client = get()
         )
     }
 }

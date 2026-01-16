@@ -1,32 +1,34 @@
 package com.example.data.remote.models
 
 import com.example.domain.model.Animal
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UnsplashResponse(
-    val results: List<UnsplashImageDto>
+data class UnsplashResponseDto(
+    @SerialName("results") val results: List<UnsplashPhotoDto> = emptyList(),
+    @SerialName("total") val total: Int? = 0,
+    @SerialName("total_pages") val totalPages: Int = 0
 )
 
 @Serializable
-data class UnsplashImageDto(
+data class UnsplashPhotoDto(
     val id: String,
-    val name: String?,
-    val tags: List<String>,
-    val urls: ImageUrlsDto,
-    val description: String?
+    @SerialName("urls") val urls: UnsplashUrlsDto,
+    @SerialName("name") val name: String? = null,
+    @SerialName("description") val description: String? = null
 )
 
 @Serializable
-data class ImageUrlsDto(
-    val regular: String,
-    val small: String
+data class UnsplashUrlsDto(
+    @SerialName("regular") val regular: String,
+    @SerialName("small") val small: String,
+    @SerialName("thumb") val thumb: String
 )
 
-fun UnsplashImageDto.toDomain(): Animal = Animal(
+fun UnsplashPhotoDto.toDomain(): Animal = Animal(
     id = this.id,
-    name = this.name ?: "Pet",
     imageUrl = this.urls.regular,
-    description = this.description,
-    tags = this.tags
+    name = this.name ?: "No name available",
+    description = this.description ?: "No description available"
 )
