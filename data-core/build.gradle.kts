@@ -1,6 +1,7 @@
-import com.codingfeline.buildkonfig.compiler.FieldSpec
+// data-core/build.gradle.kts
 import java.util.Properties
 
+// 1. Resolver el Unresolved reference leyendo la propiedad del raíz
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -15,69 +16,42 @@ plugins {
     alias(libs.plugins.buildkonfig)
 }
 
-buildkonfig {
-    packageName = "com.example.petfinder.core"
-    defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING,"UNSPLASH_KEY", unsplashKey)
-    }
-}
-
-
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
-        }
-    }
+    // 2. CORRECCIÓN: Registrar el target de Android
+    androidTarget()
 
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                    languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                }
-            }
-        }
-    }
-
-    val xcfName = "dataCoreKit"
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
-        it.binaries.framework {
-            baseName = xcfName
-            isStatic = true
-        }
-    }
+    iosArm64()
+    iosSimulatorArm64()
+    iosX64()
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlin.stdlib)
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.logging)
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
-            implementation(libs.kermit)
-            implementation(libs.ktor.client.logging)
+            implementation(libs.kotlinx.coroutines.core)
         }
-        androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.koin.android)
-        }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
+    }
+}
+
+// 3. Configuración de BuildKonfig usando la variable resuelta
+buildkonfig {
+    packageName = "com.example.petfinder.datacore"
+    defaultConfigs {
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "UNSPLASH_KEY", unsplashKey)
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "BASE_URL", "https://api.petfinder.com/v2/")
     }
 }
 
 android {
-    namespace = "com.example.data_core"
+    namespace = "com.example.petfinder.datacore"
     compileSdk = 35
-    defaultConfig { minSdk = 24 }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+    // El bloque defaultConfigs de Android no es el mismo que el de BuildKonfig
+    defaultConfig {
+        minSdk = 24
     }
 }

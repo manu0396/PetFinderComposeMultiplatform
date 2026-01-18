@@ -1,3 +1,4 @@
+// composeApp/build.gradle.kts
 import java.util.Properties
 
 val localProperties = Properties()
@@ -13,43 +14,31 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.cocoapods)
 }
 
 buildkonfig {
     packageName = "com.example.petfinder"
     defaultConfigs {
-        buildConfigField(
-            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-            "UNSPLASH_KEY",
-            unsplashKey
-        )
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "UNSPLASH_KEY", unsplashKey)
     }
 }
 
 kotlin {
-    androidTarget{
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
-        }
-    }
+    androidTarget { compilations.all { kotlinOptions { jvmTarget = "17" } } }
+    iosArm64(); iosSimulatorArm64(); iosX64()
 
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                    languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                }
-            }
-        }
-    }
-
-    listOf(iosArm64(), iosSimulatorArm64()).forEach {
-        it.binaries.framework {
+    cocoapods {
+        summary = "PetFinder KMP App"
+        homepage = "https://github.com/example/petfinder"
+        version = "1.0"
+        ios.deploymentTarget = "15.0"
+        framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.kmp.lifecycle.viewmodel)
+            export(libs.kmp.lifecycle.runtime)
+            linkerOpts("-lsqlite3")
         }
     }
 
@@ -59,30 +48,34 @@ kotlin {
             implementation(project(":domain"))
             implementation(project(":data"))
             implementation(project(":data-core"))
+
+            implementation(libs.kmp.navigation)
+            api(libs.kmp.lifecycle.viewmodel)
+            api(libs.kmp.lifecycle.runtime)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.resources)
-            implementation(compose.materialIconsExtended)
-            implementation(libs.androidx.lifecycle.viewmodel.compose)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-            api(libs.koin.core)
-            api(libs.koin.compose)
-            api(libs.coil.compose)
-            api(libs.coil.network.ktor)
-            api(libs.koin.compose.viewmodel)
+
+            implementation(libs.ktor.client.core)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         androidMain.dependencies {
+            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.appcompat)
             implementation(libs.koin.android)
+            implementation(libs.ktor.client.okhttp)
         }
-        iosMain.dependencies { }
 
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
@@ -93,13 +86,26 @@ android {
     defaultConfig {
         minSdk = 24
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    lint {
-        disable += "NullSafeMutableLiveData"
-        abortOnError = false
-        checkReleaseBuilds = false
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            isMinifyEnabled = false
+        }
     }
 }

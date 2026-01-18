@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.petfinder.viewmodel.AnimalUiState
 import com.example.petfinder.viewmodel.AnimalViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -28,13 +30,13 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AnimalSearchScreen(
     viewModel: AnimalViewModel = koinViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     var searchQuery by remember { mutableStateOf(viewModel.lastQuery) }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Find your new friend", style = MaterialTheme.typography.headlineMedium)
+        Text("Find your pet", style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
             value = searchQuery,
@@ -51,6 +53,11 @@ fun AnimalSearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        LaunchedEffect(Unit) {
+            if (viewModel.lastQuery.isNotEmpty() && state is AnimalUiState.Idle) {
+                viewModel.searchAnimals(viewModel.lastQuery)
+            }
+        }
         AnimalsListScreen(
             state = state,
             favorites = favorites,

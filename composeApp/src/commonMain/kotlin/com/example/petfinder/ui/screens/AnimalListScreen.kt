@@ -29,6 +29,13 @@ fun AnimalsListScreen(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when (state) {
+            is AnimalUiState.Idle -> {
+                Text(
+                    "Busca una mascota para comenzar.",
+                    modifier = Modifier.align(Alignment.Center),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
             is AnimalUiState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }

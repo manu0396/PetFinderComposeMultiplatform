@@ -2,7 +2,6 @@ package com.example.data.remote
 
 import com.example.data.mapper.toDomainError
 import com.example.data.remote.models.UnsplashResponseDto
-import com.example.petfinder.data.BuildKonfig
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

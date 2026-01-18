@@ -1,3 +1,4 @@
+// components/build.gradle.kts
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -6,33 +7,8 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
-    }
-
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                    languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                }
-            }
-        }
-    }
-
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "components"
-            isStatic = true
-        }
-    }
+    androidTarget()
+    iosArm64(); iosSimulatorArm64(); iosX64()
 
     sourceSets {
         commonMain.dependencies {
@@ -45,21 +21,7 @@ kotlin {
     }
 }
 
-compose.resources {
-    publicResClass = true
-    packageOfResClass = "com.example.petfinder.components"
-}
-
 android {
     namespace = "com.example.petfinder.components"
     compileSdk = 35
-
-    defaultConfig {
-        minSdk = 24
-    }
-    lint {
-        disable += "NullSafeMutableLiveData"
-        abortOnError = false
-        checkReleaseBuilds = false
-    }
 }

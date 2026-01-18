@@ -1,8 +1,7 @@
 package com.example.data_core.di
 
-import com.example.petfinder.core.BuildKonfig
+import com.example.petfinder.datacore.BuildKonfig
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest

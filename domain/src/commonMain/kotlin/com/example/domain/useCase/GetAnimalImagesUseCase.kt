@@ -1,6 +1,5 @@
 package com.example.domain.useCase
 
-import com.example.domain.model.Animal
 import com.example.domain.repository.AnimalRepository
 
 class GetAnimalImagesUseCase(
@@ -8,18 +7,19 @@ class GetAnimalImagesUseCase(
 ) {
     private val allowedAnimals = listOf("dog", "cat", "rabbit", "bird", "hamster")
 
-    suspend operator fun invoke(animalType: String = "animals"): Result<List<Animal>> {
+    // Cambiamos el retorno a Result<Unit>
+    suspend operator fun invoke(animalType: String = "animals"): Result<Unit> {
         val query = animalType.lowercase().trim()
 
-        if (query.isEmpty()) return Result.success(emptyList())
+        if (query.isEmpty()) return Result.success(Unit)
 
         if (query !in allowedAnimals) {
             return Result.failure(IllegalArgumentException("Animal not registered"))
         }
 
         return try {
-            val images = repository.searchAnimals(query)
-            Result.success(images)
+            repository.searchAnimals(query)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

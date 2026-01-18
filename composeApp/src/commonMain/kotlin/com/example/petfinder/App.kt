@@ -17,12 +17,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.crossfade
 import com.example.petfinder.ui.screens.AnimalSearchScreen
-import com.example.petfinder.ui.screens.AnimalsListScreen
 import com.example.petfinder.ui.screens.FavoritesScreen
 
 @Composable
 fun App() {
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .components {
+                add(KtorNetworkFetcherFactory())
+            }
+            .crossfade(true)
+            .build()
+    }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -46,7 +57,6 @@ fun App() {
         }
     ) { padding ->
         NavHost(navController, startDestination = "search", Modifier.padding(padding)) {
-            // Cambiamos AnimalSearchScreen por AnimalListScreen para que se use
             composable("search") { AnimalSearchScreen() }
             composable("favorites") { FavoritesScreen() }
         }

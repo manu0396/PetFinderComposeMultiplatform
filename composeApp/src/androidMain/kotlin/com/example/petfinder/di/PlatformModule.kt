@@ -1,7 +1,6 @@
 package com.example.petfinder.di
 
 import android.util.Log
-import com.example.data.BuildConfig
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.domain.util.AppLogger
 import org.koin.dsl.module

@@ -3,64 +3,78 @@ package com.example.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.example.data.db.AnimalDb
+import com.bbva.petfinder.data.db.AnimalDb
 import com.example.data.mapper.toDomain
 import com.example.data.remote.UnsplashRemoteDataSource
-import com.example.data.remote.models.UnsplashPhotoDto
 import com.example.domain.model.Animal
 import com.example.domain.repository.AnimalRepository
 import com.example.domain.util.AppLogger
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnimalRepositoryImpl(
     private val remoteDataSource: UnsplashRemoteDataSource,
     private val db: AnimalDb,
     private val logger: AppLogger,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) : AnimalRepository {
+
     private val queries = db.animalDbQueries
 
-    override suspend fun searchAnimals(query: String): List<Animal> {
-        logger.d("AnimalRepo", "Fetching animals with query: $query")
-        val response = remoteDataSource.searchPhotos(query)
-        return try {
-            response.results.map { result ->
-                Animal(
-                    id = result.id,
-                    imageUrl = result.urls.regular,
-                    description = result.description ?: "No description available",
-                    name = result.name ?: "No name available"
-                )
+    override val favorites: StateFlow<List<Animal>> = queries.selectAllFavorites()
+        .asFlow()
+        .mapToList(Dispatchers.IO)
+        .map { entities -> entities.map { it.toDomain() } }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    private val _searchResults = MutableSharedFlow<List<Animal>>(replay = 1)
+    override val searchResults: SharedFlow<List<Animal>> = _searchResults.asSharedFlow()
+
+    override suspend fun searchAnimals(query: String) {
+        scope.launch {
+            try {
+                logger.d("AnimalRepo", "Searching: $query")
+                val response = remoteDataSource.searchPhotos(query)
+                val domainAnimals = response.results.map { result ->
+                    Animal(
+                        id = result.id,
+                        imageUrl = result.urls.regular,
+                        description = result.description ?: "No description available",
+                        name = result.name ?: "No name available"
+                    )
+                }
+                _searchResults.emit(domainAnimals)
+            } catch (e: Exception) {
+                logger.e("AnimalRepo", "Search failed", e)
+                _searchResults.emit(emptyList())
             }
-        } catch (e: Exception) {
-            logger.e("AnimalRepo", "Error fetching animals", e)
-            emptyList()
         }
     }
 
-    override fun toogleFavorite(animal: Animal) {
-        val isFav = queries.selectFavoriteById(animal.id).executeAsOneOrNull() != null
-        if (isFav) {
-            queries.deleteFavorite(animal.id)
-        } else {
-            queries.insertFavorite(
-                id = animal.id,
-                name = animal.name,
-                description = animal.description,
-                imageUrl = animal.imageUrl,
-                createdAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
-            )
-        }
-    }
-    override fun getFavorites(): Flow<List<Animal>> {
-        return queries.selectAllFavorites() // Query en tu .sq
-            .asFlow()
-            .mapToList(Dispatchers.IO)
-            .map { entities ->
-                entities.map { it.toDomain() }
+    override suspend fun toggleFavorite(animal: Animal) {
+        withContext(Dispatchers.IO) {
+            val isFav = queries.selectFavoriteById(animal.id).executeAsOneOrNull() != null
+            if (isFav) {
+                queries.deleteFavorite(animal.id)
+            } else {
+                queries.insertFavorite(
+                    id = animal.id,
+                    name = animal.name,
+                    description = animal.description,
+                    imageUrl = animal.imageUrl,
+                    createdAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
+                )
             }
+        }
     }
 
     override fun isFavorite(id: String): Flow<Boolean> {
@@ -69,13 +83,4 @@ class AnimalRepositoryImpl(
             .mapToOneOrNull(Dispatchers.IO)
             .map { it != null }
     }
-}
-
-fun UnsplashPhotoDto.toDomain(): Animal {
-    return Animal(
-        id = this.id,
-        imageUrl = this.urls.regular,
-        name = this.name ?: "No name available",
-        description = this.description ?: "No description available"
-    )
 }

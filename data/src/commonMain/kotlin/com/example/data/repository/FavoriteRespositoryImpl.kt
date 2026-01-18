@@ -2,8 +2,7 @@ package com.example.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.example.data.db.AnimalDb
-import com.example.data.db.FavoriteAnimal
+import com.bbva.petfinder.data.db.AnimalDb
 import com.example.data.mapper.toDomain
 import com.example.domain.model.Animal
 import com.example.domain.repository.FavoriteRepository

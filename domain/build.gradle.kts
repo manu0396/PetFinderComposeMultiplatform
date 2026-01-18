@@ -1,42 +1,24 @@
+// domain/build.gradle.kts
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
-    }
-
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                    languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-                }
-            }
-        }
-    }
-
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
-        it.binaries.framework { baseName = "domainKit" }
-    }
+    androidTarget()
+    iosArm64(); iosSimulatorArm64(); iosX64()
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlin.stdlib)
-            implementation(libs.kotlinx.coroutines.core)
+            // El dominio no debe tener dependencias de UI, 
+            // pero sí puede tener Lifecycle si usas ViewModels en esta capa.
+            api(libs.kmp.lifecycle.viewmodel)
             implementation(libs.koin.core)
-            implementation(libs.kermit)
         }
     }
 }
 
 android {
-    namespace = "com.example.domain"
+    namespace = "com.example.petfinder.domain"
     compileSdk = 35
-    defaultConfig { minSdk = 24 }
 }
