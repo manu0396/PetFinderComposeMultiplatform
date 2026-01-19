@@ -7,7 +7,7 @@
         android:name="com.example.petfinder.app.PetFinderApp"
         android:theme="@style/Theme.PetFinder"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher"
         android:allowBackup="true"
         android:label="@string/app_name">
 
