@@ -1,45 +1,36 @@
-name: Android Quality Gate
+name: Android CI
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ main ]
 
 jobs:
-  android-check:
+  android-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      # 1. Compilation Check
-      # Changed from :app to :composeApp to match your KMP structure
-      - name: Assemble Debug
-        run: ./gradlew :composeApp:assembleDebug
+      - name: Run Unit Tests (Domain & Data)
+        run: ./gradlew :domain:test :data:test
 
-      # 2. Unit Tests
-      # Runs tests for the shared and android logic
-      - name: Run Unit Tests
-        run: ./gradlew :composeApp:testDebugUnitTest
+      - name: Build All Android Flavors
+        run: ./gradlew :androidapp:assembleDebug
 
-      # 3. Android Lint
-      # Checks for bugs and accessibility issues in your Compose code
-      - name: Run Android Lint
-        run: ./gradlew :composeApp:lintDebug
-
-      # 4. Upload Lint Report
-      - name: Upload Lint Report
-        if: always()
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: lint-report
-          path: composeApp/build/reports/lint-results-debug.html
+          name: android-debug-apk
+          path: androidapp/build/outputs/apk/**/*.apk

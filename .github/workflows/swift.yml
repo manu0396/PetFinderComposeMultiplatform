@@ -1,44 +1,42 @@
-name: Swift
+name: iOS CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-  build:
+  ios-build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
+          cache: gradle
 
-      - name: Setup CocoaPods
-        uses: maxim-lobanov/setup-cocoapods@v1
+      - name: Setup Xcode
+        uses: xcode-actions/setup-xcode@v1
         with:
-          version: 1.16.2
+          xcode-version: 'latest-stable'
 
-      - name: Build Android App
-        run: ./gradlew :androidapp:assembleDebug
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Build Kotlin Framework
-        run: ./gradlew :composeApp:generateDummyFramework
+      - name: Build KMP Shared Framework
+        run: ./gradlew :composeApp:assembleDebugAppleFrameworkForXcode
 
-      - name: Install Pods
+      - name: Build Xcode Project
         working-directory: iosApp
-        run: pod install --repo-update
-
-      - name: Build iOS App
         run: |
-          cd iosApp
-          xcodebuild -workspace iosApp.xcworkspace \
-            -scheme iosApp \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
+          xcodebuild -project iosApp.xcodeproj \
+                     -scheme iosApp \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     build \
+                     CODE_SIGNING_ALLOWED=NO
