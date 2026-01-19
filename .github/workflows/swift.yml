@@ -18,6 +18,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup CocoaPods
+        uses: maxim-lobanov/setup-cocoapods@v1
+        with:
+          version: 1.15.2
+
+      - name: Install Pods
+        working-directory: iosApp
+        run: pod install --repo-update
+
+      - name: Build Kotlin Framework
+        run: ./gradlew :composeApp:generateDummyFramework
+
+      - name: Build iOS App
+        run: |
+            cd iosApp
+            xcodebuild -workspace iosApp.xcworkspace \
+              -scheme iosApp \
+              -sdk iphonesimulator \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO  
+
       - name: Build Shared Framework
         run: ./gradlew :composeApp:assembleDebug
 

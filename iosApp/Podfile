@@ -1,0 +1,11 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+platform :ios, '15.0'
+
+target 'iosApp' do
+  use_frameworks!
+
+  # Esta línea es la que soluciona el IrLinkageError al enlazar los símbolos
+  pod 'composeApp', :path => '../composeApp'
+end
