@@ -68,3 +68,5 @@ obj/
 .env.*
 !*.example
 local.properties
+
+run-ios.txt
