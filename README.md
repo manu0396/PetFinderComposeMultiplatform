@@ -15,9 +15,9 @@ The project is structured to ensure a strict separation of concerns and modulari
 ## 🛠 Tech Stack
 
 * **Language:** Kotlin 2.x and Coroutines for asynchronous operations.
-*UI:** Jetpack Compose / Compose Multiplatform[cite: 14, 34].
+* **UI:** Jetpack Compose / Compose Multiplatform[cite: 14, 34].
 * **Architecture:** MVVM (Model-View-ViewModel) with Clean Architecture boundaries.
-*Dependency Injection:** Dagger/Hilt or Koin[cite: 14, 34].
+* **Dependency Injection:** Dagger/Hilt or Koin[cite: 14, 34].
 * **Build System:** Gradle KTS with Version Catalog (`libs.versions.toml`).
 
 ## 🚀 Build and Run
