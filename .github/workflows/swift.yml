@@ -21,14 +21,14 @@ jobs:
       - name: Setup CocoaPods
         uses: maxim-lobanov/setup-cocoapods@v1
         with:
-          version: 1.15.2
+          version: 1.16.2
+
+      - name: Build Kotlin Framework
+        run: ./gradlew :composeApp:generateDummyFramework
 
       - name: Install Pods
         working-directory: iosApp
         run: pod install --repo-update
-
-      - name: Build Kotlin Framework
-        run: ./gradlew :composeApp:generateDummyFramework
 
       - name: Build iOS App
         run: |
