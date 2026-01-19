@@ -15,6 +15,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        val appName = providers.gradleProperty("projectAppName").get()
+        manifestPlaceholders["projectName"] = appName
     }
 
     packaging {

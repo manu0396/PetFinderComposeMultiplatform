@@ -1,7 +1,6 @@
 package com.example.petfinder.di
 
 import com.example.data.di.dataModule
-import com.example.data.di.useCaseModule
 import com.example.data.repository.AnimalRepositoryImpl
 import com.example.data.repository.FavoriteRepositoryImpl
 import com.example.data_core.di.networkModule
@@ -22,26 +21,17 @@ import org.koin.dsl.module
 
 expect val platformModule: Module
 
-val appModule = module {
-    // Repository (viene de :data)
-    single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
-
-    // UseCase (viene de :domain)
+val domainModule = module {
     factory { ToggleFavoriteUseCase(get()) }
-
     factory { GetFavoritesUseCase(get()) }
-
-    // ViewModel
-    viewModelOf(::AnimalViewModel)
-
-    single<AnimalRepository> {
-        AnimalRepositoryImpl(get(), get(), get())
-    }
-
     factory { GetAnimalImagesUseCase(get()) }
-
+}
+val viewModelModule = module {
     viewModelOf(::AnimalViewModel)
-
+}
+val appModule = module {
+    single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
+    single<AnimalRepository> { AnimalRepositoryImpl(get(), get(), get()) }
     single(named("UNSPLASH_KEY")) { BuildKonfig.UNSPLASH_KEY }
 }
 
@@ -52,19 +42,20 @@ fun initKoin(
     printLogger(Level.DEBUG)
     appDeclaration()
     modules(
-        appModule,     // Módulo principal de la App
-        networkModule, // Módulo de red (:data-core)
-        dataModule,    // Módulo de base de datos (:data)
+        appModule,
+        networkModule,
+        dataModule,
+        domainModule,
+        viewModelModule,
         platformModule,
-        useCaseModule// Módulo específico de plataforma
+        *additionalModules.toTypedArray()
     )
-    modules(additionalModules)
 }
 
 object KoinHelper {
     fun doInit() {
         initKoin {
-            // Configuración específica de iOS si fuera necesaria
+            // Logs automáticos para iOS
         }
     }
 }

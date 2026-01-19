@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import com.example.domain.model.Animal
 import com.example.petfinder.ui.components.AnimalItem
 import com.example.petfinder.viewmodel.AnimalUiState
+import org.jetbrains.compose.resources.stringResource
+import petfinder.composeapp.generated.resources.Res
+import petfinder.composeapp.generated.resources.msg_idle_search
+import petfinder.composeapp.generated.resources.msg_no_results
 
 @Composable
 fun AnimalsListScreen(
@@ -31,7 +35,7 @@ fun AnimalsListScreen(
         when (state) {
             is AnimalUiState.Idle -> {
                 Text(
-                    "Busca una mascota para comenzar.",
+                    stringResource(Res.string.msg_idle_search),
                     modifier = Modifier.align(Alignment.Center),
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -42,7 +46,7 @@ fun AnimalsListScreen(
             is AnimalUiState.Success -> {
                 if (state.animals.isEmpty()) {
                     Text(
-                        "No hay mascotas que mostrar.",
+                        stringResource(Res.string.msg_no_results),
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -73,7 +77,7 @@ fun AnimalsListScreen(
             }
             is AnimalUiState.Error -> {
                 Text(
-                    text = state.message,
+                    text = state.message.asString(),
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center).padding(16.dp)
                 )

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PetFinder</string>
+    <string name="msg_idle_search">Busca una mascota para comenzar.</string>
+    <string name="msg_no_results">No hay mascotas que mostrar.</string>
+    <string name="error_unexpected">Error inesperado en la operación.</string>
+    <string name="log_koin_format">%s %s %s</string>
+    <string name="msg_unfound">No se encontraron animales para esta búsqueda.</string>
+</resources>

@@ -24,4 +24,8 @@ kotlin {
 android {
     namespace = "com.example.petfinder.components"
     compileSdk = 35
+    defaultConfig {
+        val appName = providers.gradleProperty("projectAppName").get()
+        manifestPlaceholders["projectName"] = appName
+    }
 }

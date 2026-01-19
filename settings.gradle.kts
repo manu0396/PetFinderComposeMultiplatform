@@ -1,4 +1,6 @@
-rootProject.name = "PetFinder"
+val appName = providers.gradleProperty("projectAppName").get()
+rootProject.name = appName
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
