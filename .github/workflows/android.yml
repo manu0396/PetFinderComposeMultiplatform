@@ -21,26 +21,25 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      # 1. Compilation Check (Fast fail)
-      # Checks if the app and all modules actually compile.
+      # 1. Compilation Check
+      # Changed from :app to :composeApp to match your KMP structure
       - name: Assemble Debug
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew :composeApp:assembleDebug
 
-      # 2. Unit Tests (Logic Verification)
-      # Essential for your :domain and :data modules.
+      # 2. Unit Tests
+      # Runs tests for the shared and android logic
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew :composeApp:testDebugUnitTest
 
-      # 3. Android Lint (Bug Prevention)
-      # Catches hardcoded strings, wrong drawables, deprecated APIs, etc.
+      # 3. Android Lint
+      # Checks for bugs and accessibility issues in your Compose code
       - name: Run Android Lint
-        run: ./gradlew :app:lintDebug
+        run: ./gradlew :composeApp:lintDebug
 
-      # 4. (Optional) Upload Lint Report
-      # Allows you to see the exact bugs in the GitHub Actions UI
+      # 4. Upload Lint Report
       - name: Upload Lint Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lint-report
-          path: androidapp/build/reports/lint-results-debug.html
+          path: composeApp/build/reports/lint-results-debug.html
