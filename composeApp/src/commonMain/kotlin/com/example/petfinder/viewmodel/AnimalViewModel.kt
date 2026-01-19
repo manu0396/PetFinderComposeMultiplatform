@@ -5,9 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Animal
 import com.example.domain.repository.AnimalRepository
 import com.example.domain.useCase.GetAnimalImagesUseCase
+import com.example.domain.useCase.GetFavoritesUseCase
+import com.example.domain.useCase.ToggleFavoriteUseCase
 import com.example.domain.util.AppLogger
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 sealed class AnimalUiState {
@@ -18,15 +24,17 @@ sealed class AnimalUiState {
 }
 
 class AnimalViewModel(
-    private val getAnimalsUseCase: GetAnimalImagesUseCase, // Acción (Domain)
-    private val repository: AnimalRepository,              // Estado (Data/Domain Bridge)
-    private val logger: AppLogger
+    private val getAnimalsUseCase: GetAnimalImagesUseCase,
+    private val repository: AnimalRepository,
+    private val logger: AppLogger,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
 ) : ViewModel() {
 
     private val TAG = "AnimalViewModel"
 
-    val favorites: StateFlow<List<Animal>> = repository.favorites
-
+    val favorites: StateFlow<List<Animal>> = getFavoritesUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _uiState = MutableStateFlow<AnimalUiState>(AnimalUiState.Idle)
     val uiState: StateFlow<AnimalUiState> = _uiState.asStateFlow()
 
@@ -71,7 +79,7 @@ class AnimalViewModel(
 
     fun toggleFavorite(animal: Animal) {
         viewModelScope.launch(errorHandler) {
-            repository.toggleFavorite(animal)
+            toggleFavoriteUseCase(animal)
         }
     }
 }

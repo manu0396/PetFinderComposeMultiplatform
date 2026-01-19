@@ -20,34 +20,28 @@ class FavoriteRepositoryImpl(
 ) : FavoriteRepository {
     private val queries = db.animalDbQueries
 
-    override fun getFavorites(): Flow<List<Animal>> {
-        return queries.selectAllFavorites()
+    override fun getFavorites(): Flow<List<Animal>> =
+        queries.selectAllFavorites()
             .asFlow()
             .mapToList(Dispatchers.IO)
-            .map { entities ->
-                entities.map { it.toDomain() }
-            }
-    }
+            .map { entities -> entities.map { it.toDomain() } }
 
     @OptIn(ExperimentalTime::class)
-    override suspend fun toggleFavorite(animal: Animal) {
-        val isFav = isFavorite(animal.id)
-        if (isFav) {
-            queries.deleteFavorite(animal.id)
-        } else {
-            val timestamp = Clock.System.now().toEpochMilliseconds()
-
-            queries.insertFavorite(
-                id = animal.id,
-                name = animal.name,
-                description = animal.description,
-                imageUrl = animal.imageUrl,
-                createdAt = timestamp
-            )
-        }
+    override suspend fun addFavorite(animal: Animal) {
+        val timestamp = Clock.System.now().toEpochMilliseconds()
+        queries.insertFavorite(
+            id = animal.id,
+            name = animal.name,
+            description = animal.description,
+            imageUrl = animal.imageUrl,
+            createdAt = timestamp
+        )
     }
 
-    override suspend fun isFavorite(id: String): Boolean {
-        return queries.selectFavoriteById(id).executeAsOneOrNull() != null
+    override suspend fun removeFavorite(id: String) {
+        queries.deleteFavorite(id)
     }
+
+    override suspend fun isFavorite(id: String): Boolean =
+        queries.selectFavoriteById(id).executeAsOneOrNull() != null
 }

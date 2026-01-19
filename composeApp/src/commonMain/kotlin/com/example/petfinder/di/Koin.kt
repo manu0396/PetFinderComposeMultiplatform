@@ -3,9 +3,13 @@ package com.example.petfinder.di
 import com.example.data.di.dataModule
 import com.example.data.di.useCaseModule
 import com.example.data.repository.AnimalRepositoryImpl
+import com.example.data.repository.FavoriteRepositoryImpl
 import com.example.data_core.di.networkModule
 import com.example.domain.repository.AnimalRepository
+import com.example.domain.repository.FavoriteRepository
 import com.example.domain.useCase.GetAnimalImagesUseCase
+import com.example.domain.useCase.GetFavoritesUseCase
+import com.example.domain.useCase.ToggleFavoriteUseCase
 import com.example.petfinder.BuildKonfig
 import com.example.petfinder.viewmodel.AnimalViewModel
 import org.koin.core.context.startKoin
@@ -19,6 +23,17 @@ import org.koin.dsl.module
 expect val platformModule: Module
 
 val appModule = module {
+    // Repository (viene de :data)
+    single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
+
+    // UseCase (viene de :domain)
+    factory { ToggleFavoriteUseCase(get()) }
+
+    factory { GetFavoritesUseCase(get()) }
+
+    // ViewModel
+    viewModelOf(::AnimalViewModel)
+
     single<AnimalRepository> {
         AnimalRepositoryImpl(get(), get(), get())
     }
