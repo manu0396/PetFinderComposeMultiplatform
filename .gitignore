@@ -1,37 +1,70 @@
-# IDE & System
+# --- IDE & System ---
 .idea/
 *.iml
+*.ipr
+*.iws
 .DS_Store
 .gradle/
 build/
+**/build/
 captures/
 .externalNativeBuild/
 .cxx/
 local.properties
+.vscode/
 
-# Kotlin / Multiplatform
+# --- Kotlin Multiplatform & Compose ---
 .kotlin/
 kotlin-js-store/
-**/build/
+**/generated/
+.navigation/
+# Evitar que se suban los parches de actualización que generamos hoy
+*.patch
+changes.txt
 
-# Android Specific
+# --- Android Specific ---
 *.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
 *.aar
 *.bundle
 /captures/
+# NDK
+obj/
 
-# iOS / Xcode
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-*.xcworkspace/xcuserdata/
+# --- iOS / Xcode (Very Important) ---
+# Ignorar datos personales y estados de UI que causan conflictos de merge
+**/xcuserdata/
+**/UserInterfaceState.xcuserstate
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Ignorar artefactos de compilación de Apple
 **/DerivedData/
-**/build/
+**/Archives/
+**/Products/
+**/Index/
+**/Logs/
+
+# --- CocoaPods (Standard KMP) ---
+# No subimos los Pods, el CI los instala vía 'pod install'
 **/Pods/
+# Si usa el plugin de CocoaPods de Kotlin, ignore estas carpetas generadas
 **/.pvm/
+**/external_pods/
 
-# Compose Multiplatform generated resources
-**/generated/
+# --- Gradle & Tooling ---
+.gradle-cache/
+.konan/
+# No ignorar el Wrapper, es necesario para el CI
+!gradle-wrapper.jar
 
-# Secretos y Configuración local
+# --- Secretos & Local Config ---
 .env
+.env.*
+!*.example
 local.properties
