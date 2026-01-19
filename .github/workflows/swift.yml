@@ -17,11 +17,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Setup CocoaPods
         uses: maxim-lobanov/setup-cocoapods@v1
         with:
           version: 1.16.2
+
+      - name: Build Android App
+        run: ./gradlew :androidapp:assembleDebug
 
       - name: Build Kotlin Framework
         run: ./gradlew :composeApp:generateDummyFramework
@@ -32,17 +36,9 @@ jobs:
 
       - name: Build iOS App
         run: |
-            cd iosApp
-            xcodebuild -workspace iosApp.xcworkspace \
-              -scheme iosApp \
-              -sdk iphonesimulator \
-              -configuration Debug \
-              CODE_SIGNING_ALLOWED=NO  
-
-      - name: Build Shared Framework
-        run: ./gradlew :composeApp:assembleDebug
-
-      - name: Build iOS App
-        run: |
-          cd iosApp 
-          xcodebuild -scheme iosApp -sdk iphonesimulator -configuration Debug
+          cd iosApp
+          xcodebuild -workspace iosApp.xcworkspace \
+            -scheme iosApp \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO

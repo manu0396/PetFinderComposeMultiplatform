@@ -43,4 +43,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lint-report
-          path: app/build/reports/lint-results-debug.html
+          path: androidapp/build/reports/lint-results-debug.html
