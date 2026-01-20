@@ -12,17 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.example.petfinder.viewmodel.AnimalUiState
+import com.example.petfinder.ui.components.AddPetFilterDialog
 import com.example.petfinder.viewmodel.AnimalViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -32,37 +28,52 @@ fun AnimalSearchScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
-    var searchQuery by remember { mutableStateOf(viewModel.lastQuery) }
     val focusManager = LocalFocusManager.current
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Find your pet", style = MaterialTheme.typography.headlineMedium)
+    // 1. Manejo del Diálogo (Levantado por el ViewModel)
+    if (state.isAddFilterDialogOpen) {
+        AddPetFilterDialog(
+            onDismiss = { viewModel.onDismissAddFilterDialog() },
+            onConfirm = { newType ->
+                viewModel.onConfirmAddFilter(newType)
+            }
+        )
+    }
 
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Find your pet",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        // 2. Barra de Búsqueda Persistente
+        // Value: Viene del VM (se mantiene al rotar o navegar)
+        // OnChange: Actualiza el VM inmediatamente
         OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
+            value = state.currentQuery,
+            onValueChange = { viewModel.onQueryChanged(it) },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Search (dog, cat...)") },
+            label = { Text("Search (e.g. cute, small)") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                viewModel.searchAnimals(searchQuery)
+                viewModel.performSearch()
                 focusManager.clearFocus()
             })
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LaunchedEffect(Unit) {
-            if (viewModel.lastQuery.isNotEmpty() && state is AnimalUiState.Idle) {
-                viewModel.searchAnimals(viewModel.lastQuery)
-            }
-        }
+        // 3. Lista de Resultados con Filtros
         AnimalsListScreen(
             state = state,
             favorites = favorites,
+            filters = state.filters,             // Lista dinámica
+            selectedFilter = state.selectedFilter,
+            onSelectFilter = { viewModel.onFilterSelected(it) },
+            onAddFilterClick = { viewModel.onAddFilterClicked() },
             onToggleFavorite = { animal -> viewModel.toggleFavorite(animal) },
-            modifier = Modifier.weight(1f) // Para que ocupe el espacio restante
+            modifier = Modifier.weight(1f)
         )
     }
 }
