@@ -15,12 +15,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import com.example.components.resources.Res
+import com.example.components.resources.action_add
+import com.example.components.resources.action_cancel
+import com.example.components.resources.dialog_add_category_hint
+import com.example.components.resources.dialog_add_category_title
 import org.jetbrains.compose.resources.stringResource
-import petfinder.composeapp.generated.resources.Res
-import petfinder.composeapp.generated.resources.action_add
-import petfinder.composeapp.generated.resources.action_cancel
-import petfinder.composeapp.generated.resources.dialog_add_category_hint
-import petfinder.composeapp.generated.resources.dialog_add_category_title
 
 @Composable
 fun AddPetFilterDialog(

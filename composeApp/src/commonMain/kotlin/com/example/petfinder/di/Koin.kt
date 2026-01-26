@@ -1,6 +1,7 @@
 package com.example.petfinder.di
 
 import com.example.data.di.dataModule
+import com.example.data.di.useCaseModule
 import com.example.data.repository.AnimalRepositoryImpl
 import com.example.data.repository.FavoriteRepositoryImpl
 import com.example.data_core.di.networkModule
@@ -18,6 +19,8 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import com.example.feature_login.di.loginModule
+import com.example.session.di.sessionModule
 
 expect val platformModule: Module
 
@@ -48,6 +51,9 @@ fun initKoin(
         domainModule,
         viewModelModule,
         platformModule,
+        loginModule,
+        sessionModule,
+        useCaseModule,
         *additionalModules.toTypedArray()
     )
 }

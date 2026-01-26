@@ -8,4 +8,15 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.cocoapods) apply false
     alias(libs.plugins.sqldelight) apply false
+    alias(libs.plugins.googleServices)
+}
+configurations.all {
+    resolutionStrategy {
+        eachDependency {
+            if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-coroutines")) {
+                useVersion("1.10.2")
+                because("Force consistent coroutines version across all targets")
+            }
+        }
+    }
 }

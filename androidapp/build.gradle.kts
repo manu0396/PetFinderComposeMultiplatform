@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.googleServices)
 }
 
 android {
@@ -43,22 +44,17 @@ android {
 
 dependencies {
     implementation(project(":composeApp"))
-    implementation(project(":data"))
-    implementation(project(":domain"))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.koin.android)
-    implementation(libs.coil.compose)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.lifecycle.livedata)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.okhttp)
     implementation(libs.coil.network.ktor)
     implementation(libs.coil.compose)
-    implementation(compose.ui)
-    implementation(compose.uiTooling)
-    implementation(compose.preview)
-    implementation(compose.material3)
-    implementation(compose.materialIconsExtended)
+    implementation(libs.coil.compose)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.koin.android)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.kmp)
+    implementation(libs.firebase.analytics)
+
 }

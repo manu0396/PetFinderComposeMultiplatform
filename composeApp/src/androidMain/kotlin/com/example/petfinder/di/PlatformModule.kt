@@ -1,6 +1,7 @@
 package com.example.petfinder.di
 
 import android.util.Log
+import com.example.data.di.androidDataModule
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.domain.util.AppLogger
 import org.koin.dsl.module
@@ -14,6 +15,7 @@ class AndroidLogger : AppLogger {
 
 
 actual val platformModule = module {
+    includes(androidDataModule)
     single<AppLogger> { AndroidLogger() }
     single {
         UnsplashRemoteDataSource(

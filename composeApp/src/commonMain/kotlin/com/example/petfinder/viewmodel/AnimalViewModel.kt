@@ -2,6 +2,9 @@ package com.example.petfinder.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.components.resources.Res
+import com.example.components.resources.error_unexpected
+import com.example.components.resources.msg_unfound
 import com.example.domain.model.Animal
 import com.example.domain.model.PetType
 import com.example.domain.repository.AnimalRepository
@@ -18,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import petfinder.composeapp.generated.resources.*
 
 data class AnimalUiState(
     val isLoading: Boolean = false,

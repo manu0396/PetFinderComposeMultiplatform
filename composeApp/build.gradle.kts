@@ -1,4 +1,3 @@
-// composeApp/build.gradle.kts
 import java.util.Properties
 
 val localProperties = Properties()
@@ -25,7 +24,13 @@ buildkonfig {
 }
 
 kotlin {
-    androidTarget { compilations.all { kotlinOptions { jvmTarget = "17" } } }
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
     iosArm64(); iosSimulatorArm64(); iosX64()
 
     cocoapods {
@@ -44,33 +49,32 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":components"))
-            implementation(project(":domain"))
-            implementation(project(":data"))
-            implementation(project(":data-core"))
-
-            implementation(libs.kmp.navigation)
-            api(libs.kmp.lifecycle.viewmodel)
-            api(libs.kmp.lifecycle.runtime)
-
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            implementation(compose.components.resources)
-
-            implementation(libs.ktor.client.core)
-
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.material.iconsExtended)
+            implementation(projects.components)
+            implementation(projects.domain)
+            implementation(projects.data)
+            implementation(projects.session)
+            implementation(projects.featureLogin)
+            implementation(projects.dataCore)
+            implementation(libs.kmp.navigation)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
         }
+
         androidMain.dependencies {
+            implementation(libs.material)
             implementation(compose.preview)
+            implementation(libs.androidx.appcompat)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.koin.android)
+            implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
         }
 
@@ -112,3 +116,26 @@ android {
         }
     }
 }
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.example.petfinder.resources"
+}
+configurations.configureEach {
+    // 1. FIX: "ignoreCase = true" es CRÍTICO.
+    // Las tareas de gradle a veces usan 'iosArm64' y otras 'IosArm64'.
+    val isNativeTarget = name.contains("ios", ignoreCase = true) ||
+        name.contains("apple", ignoreCase = true) ||
+        name.contains("native", ignoreCase = true)
+
+    if (isNativeTarget) {
+        // Exclusión Nuclear: Prohibido terminantemente que entre nada de Android en iOS
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-android")
+        exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-savedstate-android")
+    }
+
+    resolutionStrategy {
+        force(libs.kotlinx.coroutines.core)
+        force(libs.kotlinx.coroutines.android)
+        }
+    }

@@ -2,9 +2,9 @@ package com.example.data.di
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.bbva.petfinder.data.db.AnimalDb
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.data.db.driver.DriverFactory
+import com.example.petfinder.data.db.AnimalDb
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.android.ext.koin.androidContext
@@ -25,6 +25,7 @@ val androidDataModule = module {
 }
 
 actual val dataPlatformModule: Module = module {
+    includes(androidDataModule)
     single {
         DriverFactory(androidContext()).createDriver()
     }

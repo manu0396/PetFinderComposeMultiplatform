@@ -7,8 +7,8 @@ import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import com.example.data.di.androidDataModule
 import com.example.petfinder.di.initKoin
+import com.google.firebase.FirebaseApp
 import io.ktor.client.HttpClient
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -18,9 +18,9 @@ class PetFinderApp : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this)
         initKoin {
             androidContext(this@PetFinderApp)
-            modules(androidDataModule)
         }
 
     }

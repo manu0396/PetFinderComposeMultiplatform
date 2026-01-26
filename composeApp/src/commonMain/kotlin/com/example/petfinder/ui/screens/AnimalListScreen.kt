@@ -25,12 +25,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.components.resources.Res
+import com.example.components.resources.msg_no_results
 import com.example.domain.model.Animal
 import com.example.petfinder.ui.components.AnimalItem
 import com.example.petfinder.viewmodel.AnimalUiState
 import org.jetbrains.compose.resources.stringResource
-import petfinder.composeapp.generated.resources.Res
-import petfinder.composeapp.generated.resources.msg_no_results
 
 @Composable
 fun AnimalsListScreen(

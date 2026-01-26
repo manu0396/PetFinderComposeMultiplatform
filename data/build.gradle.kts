@@ -9,7 +9,7 @@ plugins {
 sqldelight {
     databases {
         create("AnimalDb") {
-            packageName.set("com.bbva.petfinder.data.db")
+            packageName.set("com.example.petfinder.data.db")
             generateAsync.set(false)
         }
     }
@@ -45,9 +45,9 @@ kotlin {
 
             // KOIN (Inyección)
             implementation(libs.koin.core)
-
-            // SQLDELIGHT (Base de datos)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.firebase.auth.kmp)
+
 
         }
 

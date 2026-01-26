@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194907805418",
+    "project_id": "petfinder-851c0",
+    "storage_bucket": "petfinder-851c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194907805418:android:4858e592a3b3db8ac36993",
+        "android_client_info": {
+          "package_name": "com.example.petfinder.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtlDuNDYQv7r79J4YmW29hVnVsXCw2xcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

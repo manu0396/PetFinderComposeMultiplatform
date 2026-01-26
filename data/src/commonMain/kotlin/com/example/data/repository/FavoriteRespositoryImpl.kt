@@ -2,11 +2,11 @@ package com.example.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.bbva.petfinder.data.db.AnimalDb
 import com.example.data.mapper.toDomain
 import com.example.domain.model.Animal
 import com.example.domain.repository.FavoriteRepository
 import com.example.domain.util.AppLogger
+import com.example.petfinder.data.db.AnimalDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow

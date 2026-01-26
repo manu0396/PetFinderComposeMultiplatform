@@ -16,9 +16,22 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            implementation(compose.components.resources)
+            api(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.material.iconsExtended)
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        androidMain.dependencies {
+            implementation(libs.material)
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.androidx.appcompat)
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.example.components.resources"
 }
 
 android {

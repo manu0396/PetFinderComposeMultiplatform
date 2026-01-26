@@ -6,12 +6,12 @@ plugins {
 
 kotlin {
     androidTarget()
-    iosArm64(); iosSimulatorArm64(); iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    iosX64()
 
     sourceSets {
         commonMain.dependencies {
-            // El dominio no debe tener dependencias de UI, 
-            // pero sí puede tener Lifecycle si usas ViewModels en esta capa.
             api(libs.kmp.lifecycle.viewmodel)
             implementation(libs.koin.core)
         }

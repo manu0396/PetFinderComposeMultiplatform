@@ -3,7 +3,7 @@ package com.example.data.db.driver
 import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.bbva.petfinder.data.db.AnimalDb
+import com.example.petfinder.data.db.AnimalDb
 
 class DriverFactory(private val context: Context) {
     fun createDriver(): SqlDriver {

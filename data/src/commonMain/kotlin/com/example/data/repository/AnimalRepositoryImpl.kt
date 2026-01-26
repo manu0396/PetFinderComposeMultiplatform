@@ -3,12 +3,12 @@ package com.example.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.bbva.petfinder.data.db.AnimalDb
 import com.example.data.mapper.toDomain
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.domain.model.Animal
 import com.example.domain.repository.AnimalRepository
 import com.example.domain.util.AppLogger
+import com.example.petfinder.data.db.AnimalDb
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -16,6 +16,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class AnimalRepositoryImpl(
     private val remoteDataSource: UnsplashRemoteDataSource,
@@ -60,6 +62,7 @@ class AnimalRepositoryImpl(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     override suspend fun toggleFavorite(animal: Animal) {
         withContext(Dispatchers.IO) {
             val isFav = queries.selectFavoriteById(animal.id).executeAsOneOrNull() != null
@@ -71,7 +74,7 @@ class AnimalRepositoryImpl(
                     name = animal.name,
                     description = animal.description,
                     imageUrl = animal.imageUrl,
-                    createdAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
+                    createdAt = Clock.System.now().toEpochMilliseconds()
                 )
             }
         }
