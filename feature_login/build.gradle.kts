@@ -7,15 +7,9 @@ plugins {
 
 kotlin {
     androidTarget()
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "FeatureLogin"
-        }
-    }
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
@@ -32,17 +26,17 @@ kotlin {
             implementation(libs.kmp.lifecycle.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
         }
+
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.androidx.appcompat)
         }
+
+        iosMain.dependencies {}
     }
 }
 
 android {
     namespace = "com.example.feature_login"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
 }

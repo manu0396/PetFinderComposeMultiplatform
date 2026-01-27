@@ -3,12 +3,12 @@ package com.example.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.example.data.db.AnimalDb
 import com.example.data.mapper.toDomain
 import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.domain.model.Animal
 import com.example.domain.repository.AnimalRepository
 import com.example.domain.util.AppLogger
-import com.example.petfinder.data.db.AnimalDb
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO

@@ -20,7 +20,6 @@ fun AppButton(
         enabled = enabled && !isLoading,
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            // Example: BBVA Blue or your flavor-specific color
             containerColor = MaterialTheme.colorScheme.primary
         )
     ) {

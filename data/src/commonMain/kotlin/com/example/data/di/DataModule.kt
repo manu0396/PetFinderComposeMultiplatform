@@ -1,5 +1,6 @@
 package com.example.data.di
 
+import com.example.data.db.AnimalDb
 import com.example.data.repository.AnimalRepositoryImpl
 import com.example.data.repository.FavoriteRepositoryImpl
 import com.example.data.repository.FirebaseAuthRepository
@@ -8,7 +9,6 @@ import com.example.domain.repository.AuthRepository
 import com.example.domain.repository.FavoriteRepository
 import com.example.domain.useCase.GetAnimalImagesUseCase
 import com.example.domain.util.AppLogger
-import com.example.petfinder.data.db.AnimalDb
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.auth
