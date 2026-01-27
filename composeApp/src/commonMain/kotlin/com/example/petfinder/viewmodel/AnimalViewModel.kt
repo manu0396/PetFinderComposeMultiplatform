@@ -143,7 +143,8 @@ class AnimalViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            error = UiText.Resource(Res.string.error_unexpected)
+                            error = UiText.Resource(Res.string.error_unexpected),
+                            animals = emptyList()
                         )
                     }
                 }
