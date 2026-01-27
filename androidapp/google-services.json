@@ -12,7 +12,20 @@
           "package_name": "com.example.petfinder.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "194907805418-8l1h4bljsje5po3g63ltscsek4crobnq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.petfinder.app",
+            "certificate_hash": "fb37d82b3628bef650dd3f0cf977b6917c787bcf"
+          }
+        },
+        {
+          "client_id": "194907805418-l17bfqju6bj2p724te1l2qtuaefq11sl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCtlDuNDYQv7r79J4YmW29hVnVsXCw2xcw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "194907805418-l17bfqju6bj2p724te1l2qtuaefq11sl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
