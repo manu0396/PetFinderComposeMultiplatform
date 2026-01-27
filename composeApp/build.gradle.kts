@@ -62,6 +62,8 @@ kotlin {
             implementation(projects.featureLogin)
             implementation(projects.dataCore)
             implementation(libs.kmp.navigation)
+            api(libs.kmp.lifecycle.viewmodel)
+            api(libs.kmp.lifecycle.runtime)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
             implementation(libs.koin.core)

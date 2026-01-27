@@ -6,13 +6,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.*
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
@@ -57,13 +67,17 @@ fun MainScaffold() {
                 NavigationBarItem(
                     selected = currentRoute == "search",
                     onClick = {
-                        navController.navigate("search") {
-                            val startDestination = navController.graph.findStartDestination()
-                            popUpTo(startDestination.route ?: "search") {
-                                saveState = true
+                        if (currentRoute != "search") {
+                            navController.navigate("search") {
+                                val startRoute = navController.graph.findStartDestination().route
+                                if (startRoute != null) {
+                                    popUpTo(startRoute) {
+                                        saveState = true
+                                    }
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
@@ -72,9 +86,17 @@ fun MainScaffold() {
                 NavigationBarItem(
                     selected = currentRoute == "favorites",
                     onClick = {
-                        navController.navigate("favorites") {
-                            launchSingleTop = true
-                            restoreState = true
+                        if (currentRoute != "favorites") {
+                            navController.navigate("favorites") {
+                                val startRoute = navController.graph.findStartDestination().route
+                                if (startRoute != null) {
+                                    popUpTo(startRoute) {
+                                        saveState = true
+                                    }
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     },
                     icon = { Icon(Icons.Default.Favorite, contentDescription = "Favs") },

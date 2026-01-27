@@ -13,14 +13,14 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":domain"))
+            implementation(project(":session"))
+            implementation(project(":components"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(libs.kmp.navigation)
-            implementation(project(":domain"))
-            implementation(project(":session"))
-            implementation(project(":components"))
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.kmp.lifecycle.viewmodel)
@@ -33,6 +33,15 @@ kotlin {
         }
 
         iosMain.dependencies {}
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.koin.test)
+                implementation(libs.cash.turbine)
+            }
+        }
     }
 }
 
