@@ -45,24 +45,11 @@ jobs:
       - name: Install Pods
         run: |
           cd iosApp
-          if [ ! -d "Pods" ]; then
-            pod install
-          fi
+          pod install
           cd ..
 
       - name: Sync Kotlin CocoaPods Bridge
         run: ./gradlew :composeApp:podInstall --no-daemon
-
-      - name: Verify Firebase Framework Existence
-        run: |
-          FRAMEWORK_PATH="composeApp/build/cocoapods/framework/ComposeApp.framework"
-          if [ -d "$FRAMEWORK_PATH" ]; then
-            echo "ComposeApp.framework exists. Linking successful."
-          else
-            echo "ERROR: Kotlin Framework not found at $FRAMEWORK_PATH"
-            find composeApp/build/cocoapods -name "*.framework"
-            exit 1
-          fi
 
       - name: Run Kotlin Common Tests
         run: ./gradlew :composeApp:allTests --no-daemon
