@@ -50,7 +50,6 @@ fun AnimalSearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // FIXED: Solo pasamos 'state' y 'favorites'. Quitamos parámetros redundantes.
         AnimalsListScreen(
             state = state,
             favorites = favorites,
