@@ -23,27 +23,41 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Generate SQLDelight Code
-        run: ./gradlew generateSqlDelightInterface
+      - name: Generate Code
+        run: |
+          ./gradlew generateSqlDelightInterface
+          ./gradlew :components:generateComposeResClass
+
+      - name: Run Kotlin Common Tests
+        run: ./gradlew :composeApp:allTests
 
       - name: Sync Kotlin CocoaPods Bridge
         run: ./gradlew :composeApp:podInstall --no-configuration-cache
 
+      - name: CocoaPods Cache
+        uses: actions/cache@v4
+        with:
+          path: iosApp/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('iosApp/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
       - name: CocoaPods Install
         working-directory: iosApp
         run: |
-          pod repo update
+          if [ ! -d "Pods" ]; then
+            pod repo update
+          fi
           pod install
 
       - name: Build Xcode Project
         working-directory: iosApp
         run: |
-          # Explicitly target the arm64 simulator to match KMP output
           xcodebuild -workspace iosApp.xcworkspace \
                      -scheme iosApp \
                      -sdk iphonesimulator \
                      -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
                      -configuration Debug \
-                     -arch arm64 \
                      build \
-                     CODE_SIGNING_ALLOWED=NO
+                     CODE_SIGNING_ALLOWED=NO \
+                     ONLY_ACTIVE_ARCH=NO

@@ -14,6 +14,7 @@ buildkonfig {
     }
 }
 
+val buildDirPath: String = layout.buildDirectory.asFile.get().absolutePath
 
 kotlin {
     androidTarget {
@@ -34,19 +35,22 @@ kotlin {
         homepage = "https://github.com/example/petfinder"
         version = "1.0"
         ios.deploymentTarget = "15.0"
-
-        pod("FirebaseAuth") { version = "10.29.0" }
-        pod("FirebaseCore") { version = "10.29.0" }
-
         podfile = project.file("../iosApp/Podfile")
 
         framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts("-lsqlite3", "-ObjC")
+            linkerOpts(
+                "-lsqlite3",
+                "-ObjC",
+                "-F$buildDirPath/cocoapods/externalProtobuf",
+                "-F${project.rootDir.absolutePath}/iosApp/Pods/FirebaseCore/Frameworks",
+                "-F${project.rootDir.absolutePath}/iosApp/Pods/FirebaseAuth/Frameworks",
+                "-framework", "FirebaseCore",
+                "-framework", "FirebaseAuth"
+            )
             export(libs.kmp.lifecycle.runtime)
             export(libs.kmp.lifecycle.viewmodel)
-            export(libs.firebase.auth.kmp)
         }
     }
 
@@ -74,10 +78,10 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.kmp.navigation)
             implementation(libs.kotlinx.coroutines.core)
-
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.firebase.auth.kmp)
             api(libs.kmp.lifecycle.runtime)
             api(libs.kmp.lifecycle.viewmodel)
-            api(libs.firebase.auth.kmp)
         }
 
         androidMain.dependencies {
@@ -112,6 +116,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+tasks.named<Delete>("clean") {
+    delete(layout.buildDirectory)
+}
+
 configurations.all {
     resolutionStrategy {
         dependencySubstitution {
@@ -119,10 +128,8 @@ configurations.all {
                 .using(module("com.google.firebase:firebase-auth:${libs.versions.firebase.auth.get()}"))
 
             substitute(module("com.google.firebase:firebase-common-ktx"))
-                .using(module("com.google.firebase:firebase-common:22.1.1")) // Stable fallback
+                .using(module("com.google.firebase:firebase-common:22.1.1"))
         }
-
-        // Prevent the -ktx modules from being resolved at all
         exclude(group = "com.google.firebase", module = "firebase-auth-ktx")
         exclude(group = "com.google.firebase", module = "firebase-common-ktx")
     }
