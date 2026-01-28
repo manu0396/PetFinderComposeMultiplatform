@@ -20,6 +20,12 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Cache Konan (Kotlin/Native)
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle.kts') }}
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -29,7 +35,8 @@ jobs:
           ./gradlew :components:generateComposeResClass
 
       - name: Run Kotlin Common Tests
-        run: ./gradlew :composeApp:allTests
+        # Adding --no-daemon can help stability in memory-constrained CI environments
+        run: ./gradlew :composeApp:allTests --stacktrace
 
       - name: Sync Kotlin CocoaPods Bridge
         run: ./gradlew :composeApp:podInstall --no-configuration-cache

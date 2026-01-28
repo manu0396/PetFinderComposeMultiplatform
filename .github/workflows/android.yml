@@ -24,7 +24,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Generate Code
-        run: ./gradlew generateSqlDelightInterface
+        run: |
+          ./gradlew generateSqlDelightInterface
+          ./gradlew :components:generateComposeResClass
 
       - name: Run Tests
         run: ./gradlew :domain:test :data:test :feature_login:test :session:test
