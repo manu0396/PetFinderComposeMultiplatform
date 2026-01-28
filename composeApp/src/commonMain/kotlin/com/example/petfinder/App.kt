@@ -31,6 +31,7 @@ import com.example.feature_login.ui.screens.LoginScreen
 import com.example.petfinder.navigation.PetFinderNavGraph
 import com.example.session.SessionManager
 import com.example.session.domain.SessionState
+import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 
 @Composable
@@ -41,15 +42,16 @@ fun App() {
             .crossfade(true)
             .build()
     }
-    val sessionManager: SessionManager = koinInject()
-    val sessionState by sessionManager.currentState.collectAsState(initial = SessionState.Loading)
-
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            when (sessionState) {
-                is SessionState.Loading -> FullScreenLoading()
-                is SessionState.NotAuthenticated -> LoginScreen()
-                is SessionState.Authenticated -> MainScaffold()
+    KoinContext {
+        val sessionManager: SessionManager = koinInject()
+        val sessionState by sessionManager.currentState.collectAsState(initial = SessionState.Loading)
+        MaterialTheme {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                when (sessionState) {
+                    is SessionState.Loading -> FullScreenLoading()
+                    is SessionState.NotAuthenticated -> LoginScreen()
+                    is SessionState.Authenticated -> MainScaffold()
+                }
             }
         }
     }

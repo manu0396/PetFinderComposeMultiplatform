@@ -9,6 +9,8 @@ on:
 jobs:
   ios-build:
     runs-on: macos-latest
+    timeout-minutes: 45
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -29,17 +31,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Generate Code
+      - name: Generate Source Code
         run: |
           ./gradlew generateSqlDelightInterface
           ./gradlew :components:generateComposeResClass
-
-      - name: Run Kotlin Common Tests
-        # Adding --no-daemon can help stability in memory-constrained CI environments
-        run: ./gradlew :composeApp:allTests --stacktrace
-
-      - name: Sync Kotlin CocoaPods Bridge
-        run: ./gradlew :composeApp:podInstall --no-configuration-cache
 
       - name: CocoaPods Cache
         uses: actions/cache@v4
@@ -56,6 +51,22 @@ jobs:
             pod repo update
           fi
           pod install
+
+      - name: Sync Kotlin CocoaPods Bridge
+        run: ./gradlew :composeApp:podInstall --no-configuration-cache
+
+      - name: Verify Firebase Framework Existence
+        run: |
+          FRAMEWORK_PATH="composeApp/build/cocoapods/frameworks/FirebaseCore.framework"
+          if [ -d "$FRAMEWORK_PATH" ]; then
+            echo "FirebaseCore found. Proceeding to tests."
+          else
+            echo "ERROR: FirebaseCore not found at $FRAMEWORK_PATH"
+            exit 1
+          fi
+
+      - name: Run Kotlin Common Tests
+        run: ./gradlew :composeApp:allTests --stacktrace --no-daemon
 
       - name: Build Xcode Project
         working-directory: iosApp

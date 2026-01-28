@@ -20,6 +20,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.components.resources)
             implementation(libs.kmp.navigation)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)

@@ -36,33 +36,44 @@ kotlin {
         version = "1.0"
         ios.deploymentTarget = "15.0"
         podfile = project.file("../iosApp/Podfile")
-
+        specRepos {
+            url("https://github.com/CocoaPods/Specs.git")
+            url("https://cdn.cocoapods.org")
+        }
         framework {
             baseName = "ComposeApp"
-            isStatic = true
-            linkerOpts(
-                "-lsqlite3",
-                "-ObjC",
-                "-F$buildDirPath/cocoapods/externalProtobuf",
-                "-F${project.rootDir.absolutePath}/iosApp/Pods/FirebaseCore/Frameworks",
-                "-F${project.rootDir.absolutePath}/iosApp/Pods/FirebaseAuth/Frameworks",
-                "-framework", "FirebaseCore",
-                "-framework", "FirebaseAuth"
-            )
+            freeCompilerArgs += listOf("-Xbinary=bundleId=com.example.petfinder.shared")
+            isStatic = false
             export(libs.kmp.lifecycle.runtime)
             export(libs.kmp.lifecycle.viewmodel)
+            export(project(":components"))
+            binaryOption("bundleId", "com.example.petfinder.shared")
+            linkerOpts(
+                "-lsqlite3",
+                "-ObjC"
+            )
+        }
+        extraSpecAttributes["pod_target_xcconfig"] = "{ 'BUILD_LIBRARIES_FOR_DISTRIBUTION' => 'YES' }"
+        pod("FirebaseCore") {
+            version = "11.6.0"
+            packageName = "firebase.core.native"
+        }
+        pod("FirebaseAuth") {
+            version = "11.6.0"
+            packageName = "firebase.auth.native"
+            extraOpts += listOf("-compiler-option", "-fmodules")
         }
     }
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":components"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-
             implementation(projects.components)
             implementation(projects.domain)
             implementation(projects.data)
@@ -86,6 +97,11 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
@@ -119,6 +135,20 @@ android {
 
 tasks.named<Delete>("clean") {
     delete(layout.buildDirectory)
+}
+
+tasks.register<Copy>("installGitHooks") {
+    description = "Installs git hooks from the .github/hooks directory."
+    group = "verification"
+
+    // Pointing to your specific location
+    from(file(".github/hooks/pre-push"))
+    into(file("${rootProject.rootDir}/.git/hooks"))
+
+    // Modern Gradle API for Unix permissions (rwxr-xr-x)
+    filePermissions {
+        unix("rwxr-xr-x")
+    }
 }
 
 configurations.all {

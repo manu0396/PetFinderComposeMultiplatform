@@ -1,13 +1,25 @@
 #!/bin/sh
 
-echo "Running Quality Checks before pushing..."
+set -e
+
+echo "--- Starting Integrity Audit ---"
+
 GIT_ROOT=$(git rev-parse --show-toplevel)
-cd "$GIT_ROOT" || { echo "Could not find git root"; exit 1; }
-./gradlew testDebugUnitTest
+cd "$GIT_ROOT"
+
+if [ -f "./verify-build.sh" ]; then
+    echo "Executing integral build verification..."
+    ./verify-build.sh
+else
+    echo "ERROR: verify-build.sh not found at project root ($GIT_ROOT)."
+    exit 1
+fi
+
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
-  echo "Tests failed! Fix them before pushing."
-  exit 1
+    echo "ERROR: Build verification failed. Push aborted."
+    exit 1
 fi
-echo "Tests passed. Pushing code..."
+
+echo "Integrity check passed. Proceeding with push."
 exit 0
