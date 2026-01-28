@@ -1,24 +1,18 @@
 package com.example.petfinder.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.petfinder.ui.components.AddPetFilterDialog
+import com.example.petfinder.viewmodel.AnimalIntent
 import com.example.petfinder.viewmodel.AnimalViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -26,47 +20,43 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AnimalSearchScreen(
     viewModel: AnimalViewModel = koinViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
-    val favorites by viewModel.favorites.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
 
     if (state.isAddFilterDialogOpen) {
         AddPetFilterDialog(
             existingFilters = state.filters,
-            onDismissRequest = {
-                viewModel.onDismissAddFilterDialog()
-            },
-            onApplyFilters = { filter ->
-                viewModel.onApplyFilters(filter)
-            }
+            onDismissRequest = { viewModel.handleIntent(AnimalIntent.CloseFilterDialog) },
+            onApplyFilters = { filter -> viewModel.handleIntent(AnimalIntent.ApplyPetFilter(filter)) }
         )
     }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = "Find your pet",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text(text = "Find your pet", style = MaterialTheme.typography.headlineMedium)
+
         OutlinedTextField(
             value = state.currentQuery,
-            onValueChange = { viewModel.onQueryChanged(it) },
+            onValueChange = { viewModel.handleIntent(AnimalIntent.QueryChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Search (e.g. cute, small)") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                viewModel.performSearch()
+                viewModel.handleIntent(AnimalIntent.RefreshSearch)
                 focusManager.clearFocus()
             })
         )
+
         Spacer(modifier = Modifier.height(16.dp))
+
+        // FIXED: Solo pasamos 'state' y 'favorites'. Quitamos parámetros redundantes.
         AnimalsListScreen(
             state = state,
             favorites = favorites,
-            filters = state.filters,
-            selectedFilter = state.selectedFilter,
-            onSelectFilter = { viewModel.onFilterSelected(it) },
-            onAddFilterClick = { viewModel.onAddFilterClicked() },
-            onToggleFavorite = { animal -> viewModel.toggleFavorite(animal) },
+            onSelectFilter = { viewModel.handleIntent(AnimalIntent.FilterSelected(it)) },
+            onAddFilterClick = { viewModel.handleIntent(AnimalIntent.OpenFilterDialog) },
+            onToggleFavorite = { animal -> viewModel.handleIntent(AnimalIntent.ToggleFavorite(animal)) },
             modifier = Modifier.weight(1f)
         )
     }

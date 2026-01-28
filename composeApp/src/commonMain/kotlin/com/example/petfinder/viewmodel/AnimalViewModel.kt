@@ -13,14 +13,9 @@ import com.example.domain.useCase.GetFavoritesUseCase
 import com.example.domain.useCase.ToggleFavoriteUseCase
 import com.example.domain.util.AppLogger
 import com.example.petfinder.ui.util.UiText
-import com.example.petfinder.ui.components.PetFilter // FIXED: New import
+import com.example.petfinder.ui.components.PetFilter
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class AnimalUiState(
@@ -33,6 +28,16 @@ data class AnimalUiState(
     val isAddFilterDialogOpen: Boolean = false
 )
 
+sealed class AnimalIntent {
+    data class FilterSelected(val filter: String) : AnimalIntent()
+    data class QueryChanged(val query: String) : AnimalIntent()
+    data class ApplyPetFilter(val filter: PetFilter) : AnimalIntent()
+    data class ToggleFavorite(val animal: Animal) : AnimalIntent()
+    object RefreshSearch : AnimalIntent()
+    object OpenFilterDialog : AnimalIntent()
+    object CloseFilterDialog : AnimalIntent()
+}
+
 class AnimalViewModel(
     private val getAnimalsUseCase: GetAnimalImagesUseCase,
     private val repository: AnimalRepository,
@@ -43,55 +48,78 @@ class AnimalViewModel(
 
     private val TAG = "AnimalViewModel"
 
-    val favorites: StateFlow<List<Animal>> = getFavoritesUseCase()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     private val _uiState = MutableStateFlow(AnimalUiState())
     val uiState: StateFlow<AnimalUiState> = _uiState.asStateFlow()
 
+    val favorites: StateFlow<List<Animal>> = getFavoritesUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
-        logger.e(TAG, "Coroutine Error: ${throwable.message}", throwable)
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                error = UiText.Resource(Res.string.error_unexpected)
-            )
-        }
+        logger.e(TAG, "MVI State Error: ${throwable.message}", throwable)
+        _uiState.update { it.copy(isLoading = false, error = UiText.Resource(Res.string.error_unexpected)) }
     }
 
     init {
-        searchInternal(_uiState.value.selectedFilter)
-        observeSearchResults()
+        handleIntent(AnimalIntent.RefreshSearch)
+        observeRepositoryResults()
     }
 
-    fun onFilterSelected(filter: String) {
-        _uiState.update { it.copy(selectedFilter = filter) }
-        performSearch()
-    }
-
-    fun onAddFilterClicked() {
-        _uiState.update { it.copy(isAddFilterDialogOpen = true) }
-    }
-
-    fun onDismissAddFilterDialog() {
-        _uiState.update { it.copy(isAddFilterDialogOpen = false) }
-    }
-
-    fun onApplyFilters(filter: PetFilter) {
-        val newType = filter.type
-        if (newType.isBlank()) return
-
-        val normalizedType = newType.trim().lowercase()
-
-        _uiState.update { currentState ->
-            val newFilters = if (currentState.filters.contains(normalizedType)) {
-                currentState.filters
-            } else {
-                currentState.filters + normalizedType
+    fun handleIntent(intent: AnimalIntent) {
+        when (intent) {
+            is AnimalIntent.FilterSelected -> {
+                _uiState.update { it.copy(selectedFilter = intent.filter) }
+                performSearch()
             }
+            is AnimalIntent.QueryChanged -> {
+                _uiState.update { it.copy(currentQuery = intent.query) }
+            }
+            is AnimalIntent.ApplyPetFilter -> applyNewFilter(intent.filter)
+            is AnimalIntent.ToggleFavorite -> toggleFavorite(intent.animal)
+            is AnimalIntent.OpenFilterDialog -> _uiState.update { it.copy(isAddFilterDialogOpen = true) }
+            is AnimalIntent.CloseFilterDialog -> _uiState.update { it.copy(isAddFilterDialogOpen = false) }
+            is AnimalIntent.RefreshSearch -> performSearch()
+        }
+    }
 
-            currentState.copy(
-                filters = newFilters,
+    private fun observeRepositoryResults() {
+        viewModelScope.launch(errorHandler) {
+            repository.searchResults.collect { animals ->
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        animals = animals,
+                        error = if (animals.isEmpty()) UiText.Resource(Res.string.msg_unfound) else null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun performSearch() {
+        val state = _uiState.value
+        val finalQuery = state.currentQuery.trim().let {
+            if (it.isBlank()) state.selectedFilter else "${state.selectedFilter} $it"
+        }
+
+        if (finalQuery.isBlank()) return
+
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch(errorHandler) {
+            val result = getAnimalsUseCase(finalQuery)
+            if (result.isFailure) {
+                _uiState.update { it.copy(isLoading = false, error = UiText.Resource(Res.string.error_unexpected)) }
+            }
+        }
+    }
+
+    private fun applyNewFilter(filter: PetFilter) {
+        val normalizedType = filter.type.trim().lowercase()
+        if (normalizedType.isBlank()) return
+
+        _uiState.update { state ->
+            val updatedFilters = if (state.filters.contains(normalizedType)) state.filters else state.filters + normalizedType
+            state.copy(
+                filters = updatedFilters,
                 selectedFilter = normalizedType,
                 isAddFilterDialogOpen = false
             )
@@ -99,64 +127,7 @@ class AnimalViewModel(
         performSearch()
     }
 
-    fun onQueryChanged(newQuery: String) {
-        _uiState.update { it.copy(currentQuery = newQuery) }
-    }
-
-    fun performSearch() {
-        val state = _uiState.value
-        val queryText = state.currentQuery.trim()
-        val filter = state.selectedFilter
-        val finalQuery = if (queryText.isBlank()) filter else "$filter $queryText"
-        searchInternal(finalQuery)
-    }
-
-    private fun observeSearchResults() {
-        viewModelScope.launch {
-            repository.searchResults.collect { animals ->
-                _uiState.update { currentState ->
-                    if (animals.isEmpty() && !currentState.isLoading) {
-                        currentState.copy(
-                            isLoading = false,
-                            error = UiText.Resource(Res.string.msg_unfound),
-                            animals = emptyList()
-                        )
-                    } else {
-                        currentState.copy(
-                            isLoading = false,
-                            animals = animals,
-                            error = null
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun searchInternal(query: String) {
-        if (query.isBlank()) return
-
-        _uiState.update { it.copy(isLoading = true, error = null) }
-
-        viewModelScope.launch(errorHandler) {
-            val result = getAnimalsUseCase(query)
-
-            // FIXED: Using isFailure check to avoid unresolved onFailure extension issues
-            if (result.isFailure) {
-                val exception = result.exceptionOrNull()
-                logger.e(TAG, "Business Rule Violation: ${exception?.message}")
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = UiText.Resource(Res.string.error_unexpected),
-                        animals = emptyList()
-                    )
-                }
-            }
-        }
-    }
-
-    fun toggleFavorite(animal: Animal) {
+    private fun toggleFavorite(animal: Animal) {
         viewModelScope.launch(errorHandler) {
             toggleFavoriteUseCase(animal)
         }
