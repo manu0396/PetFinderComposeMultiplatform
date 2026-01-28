@@ -27,10 +27,6 @@ Pod::Spec.new do |spec|
         'ENABLE_USER_SCRIPT_SANDBOXING' => 'NO',
     }
                 
-    spec.pod_target_xcconfig = {
-        'KOTLIN_PROJECT_PATH' => ':composeApp',
-        'PRODUCT_MODULE_NAME' => 'ComposeApp',
-    }
                 
     spec.script_phases = [
         {
@@ -52,4 +48,5 @@ Pod::Spec.new do |spec|
         }
     ]
     spec.resources = ['build/compose/cocoapods/compose-resources']
+    spec.pod_target_xcconfig = { 'BUILD_LIBRARIES_FOR_DISTRIBUTION' => 'YES' }
 end

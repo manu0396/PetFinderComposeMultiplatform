@@ -20,8 +20,8 @@ tasks.register<Copy>("installGitHooks") {
     description = "Installs custom git hooks to ensure MVI and Native build integrity."
     group = "verification"
 
-    from(file("scripts/pre-push"))
-    into(file("${rootProject.rootDir}/.git/hooks"))
+    from(file(".github/hooks/pre-push"))
+    into(file(".git/hooks"))
 
     filePermissions {
         unix("rwxr-xr-x")

@@ -2,9 +2,9 @@ name: iOS CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   ios-build:
@@ -15,58 +15,56 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
+          java-version: '17'
+          distribution: 'zulu'
 
-      - name: Cache Konan (Kotlin/Native)
-        uses: actions/cache@v4
-        with:
-          path: ~/.konan
-          key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Generate Dummy Framework
+        run: ./gradlew :composeApp:generateDummyFramework
 
       - name: Generate Source Code
         run: |
           ./gradlew generateSqlDelightInterface
           ./gradlew :components:generateComposeResClass
+          ./gradlew :feature_login:generateComposeResClass
 
       - name: CocoaPods Cache
         uses: actions/cache@v4
         with:
           path: iosApp/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('iosApp/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
-      - name: CocoaPods Install
-        working-directory: iosApp
+      - name: Install Pods
         run: |
+          cd iosApp
           if [ ! -d "Pods" ]; then
-            pod repo update
+            pod install
           fi
-          pod install
+          cd ..
 
       - name: Sync Kotlin CocoaPods Bridge
-        run: ./gradlew :composeApp:podInstall --no-configuration-cache
+        run: ./gradlew :composeApp:podInstall --no-daemon
 
       - name: Verify Firebase Framework Existence
         run: |
           FRAMEWORK_PATH="composeApp/build/cocoapods/frameworks/FirebaseCore.framework"
           if [ -d "$FRAMEWORK_PATH" ]; then
-            echo "FirebaseCore found. Proceeding to tests."
+            echo "FirebaseCore found"
           else
-            echo "ERROR: FirebaseCore not found at $FRAMEWORK_PATH"
+            echo "ERROR: FirebaseCore not found"
             exit 1
           fi
 
       - name: Run Kotlin Common Tests
-        run: ./gradlew :composeApp:allTests --stacktrace --no-daemon
+        run: ./gradlew :composeApp:allTests --no-daemon
 
       - name: Build Xcode Project
         working-directory: iosApp
@@ -74,8 +72,6 @@ jobs:
           xcodebuild -workspace iosApp.xcworkspace \
                      -scheme iosApp \
                      -sdk iphonesimulator \
-                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
                      -configuration Debug \
-                     build \
-                     CODE_SIGNING_ALLOWED=NO \
-                     ONLY_ACTIVE_ARCH=NO
+                     -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                     build CODE_SIGNING_ALLOWED=NO
