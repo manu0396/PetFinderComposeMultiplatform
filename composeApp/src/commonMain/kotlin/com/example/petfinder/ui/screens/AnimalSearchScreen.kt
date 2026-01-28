@@ -30,25 +30,22 @@ fun AnimalSearchScreen(
     val favorites by viewModel.favorites.collectAsState()
     val focusManager = LocalFocusManager.current
 
-    // 1. Manejo del Diálogo (Levantado por el ViewModel)
     if (state.isAddFilterDialogOpen) {
         AddPetFilterDialog(
-            onDismiss = { viewModel.onDismissAddFilterDialog() },
-            onConfirm = { newType ->
-                viewModel.onConfirmAddFilter(newType)
+            existingFilters = state.filters,
+            onDismissRequest = {
+                viewModel.onDismissAddFilterDialog()
+            },
+            onApplyFilters = { filter ->
+                viewModel.onApplyFilters(filter)
             }
         )
     }
-
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
             text = "Find your pet",
             style = MaterialTheme.typography.headlineMedium
         )
-
-        // 2. Barra de Búsqueda Persistente
-        // Value: Viene del VM (se mantiene al rotar o navegar)
-        // OnChange: Actualiza el VM inmediatamente
         OutlinedTextField(
             value = state.currentQuery,
             onValueChange = { viewModel.onQueryChanged(it) },
@@ -61,14 +58,11 @@ fun AnimalSearchScreen(
                 focusManager.clearFocus()
             })
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // 3. Lista de Resultados con Filtros
         AnimalsListScreen(
             state = state,
             favorites = favorites,
-            filters = state.filters,             // Lista dinámica
+            filters = state.filters,
             selectedFilter = state.selectedFilter,
             onSelectFilter = { viewModel.onFilterSelected(it) },
             onAddFilterClick = { viewModel.onAddFilterClicked() },

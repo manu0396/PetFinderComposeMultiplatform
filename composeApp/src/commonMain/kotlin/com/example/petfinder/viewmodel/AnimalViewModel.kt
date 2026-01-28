@@ -13,6 +13,7 @@ import com.example.domain.useCase.GetFavoritesUseCase
 import com.example.domain.useCase.ToggleFavoriteUseCase
 import com.example.domain.util.AppLogger
 import com.example.petfinder.ui.util.UiText
+import com.example.petfinder.ui.components.PetFilter // FIXED: New import
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -76,7 +77,8 @@ class AnimalViewModel(
         _uiState.update { it.copy(isAddFilterDialogOpen = false) }
     }
 
-    fun onConfirmAddFilter(newType: String) {
+    fun onApplyFilters(filter: PetFilter) {
+        val newType = filter.type
         if (newType.isBlank()) return
 
         val normalizedType = newType.trim().lowercase()
@@ -137,17 +139,20 @@ class AnimalViewModel(
         _uiState.update { it.copy(isLoading = true, error = null) }
 
         viewModelScope.launch(errorHandler) {
-            getAnimalsUseCase(query)
-                .onFailure { error ->
-                    logger.e(TAG, "Business Rule Violation: ${error.message}")
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = UiText.Resource(Res.string.error_unexpected),
-                            animals = emptyList()
-                        )
-                    }
+            val result = getAnimalsUseCase(query)
+
+            // FIXED: Using isFailure check to avoid unresolved onFailure extension issues
+            if (result.isFailure) {
+                val exception = result.exceptionOrNull()
+                logger.e(TAG, "Business Rule Violation: ${exception?.message}")
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.Resource(Res.string.error_unexpected),
+                        animals = emptyList()
+                    )
                 }
+            }
         }
     }
 

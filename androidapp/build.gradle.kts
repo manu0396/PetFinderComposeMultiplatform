@@ -16,7 +16,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        val appName = providers.gradleProperty("projectAppName").get()
+        val appName = providers.gradleProperty("projectAppName").getOrElse("PetFinder")
         manifestPlaceholders["projectName"] = appName
     }
 

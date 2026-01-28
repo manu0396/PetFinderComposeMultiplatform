@@ -13,10 +13,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: gradle
 
@@ -26,22 +26,24 @@ jobs:
       - name: Generate SQLDelight Code
         run: ./gradlew generateSqlDelightInterface
 
-      - name: Generate Dummy Framework
-        run: ./gradlew :composeApp:generateDummyFramework
-
-      - name: Validate KMP iOS Compilation
-        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+      - name: Sync Kotlin CocoaPods Bridge
+        run: ./gradlew :composeApp:podInstall --no-configuration-cache
 
       - name: CocoaPods Install
         working-directory: iosApp
-        run: pod install
+        run: |
+          pod repo update
+          pod install
 
       - name: Build Xcode Project
         working-directory: iosApp
         run: |
+          # Explicitly target the arm64 simulator to match KMP output
           xcodebuild -workspace iosApp.xcworkspace \
                      -scheme iosApp \
                      -sdk iphonesimulator \
+                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
                      -configuration Debug \
+                     -arch arm64 \
                      build \
                      CODE_SIGNING_ALLOWED=NO

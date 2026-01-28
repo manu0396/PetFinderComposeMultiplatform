@@ -1,49 +1,52 @@
-import java.util.Properties
-
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(localPropertiesFile.inputStream())
-}
-val unsplashKey = localProperties.getProperty("unsplash.api.key") ?: ""
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.buildkonfig)
     alias(libs.plugins.cocoapods)
+    alias(libs.plugins.buildkonfig)
 }
-
 buildkonfig {
     packageName = "com.example.petfinder"
     defaultConfigs {
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "UNSPLASH_KEY", unsplashKey)
+        // You can add your keys here or pull from local.properties
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "UNSPLASH_KEY", "your_key_here")
     }
 }
 
+
 kotlin {
     androidTarget {
+        @Suppress("DEPRECATION")
         compilations.all {
             kotlinOptions {
                 jvmTarget = "17"
             }
         }
     }
-    iosArm64(); iosSimulatorArm64(); iosX64()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     cocoapods {
         summary = "PetFinder KMP App"
         homepage = "https://github.com/example/petfinder"
         version = "1.0"
         ios.deploymentTarget = "15.0"
+
+        pod("FirebaseAuth") { version = "10.29.0" }
+        pod("FirebaseCore") { version = "10.29.0" }
+
+        podfile = project.file("../iosApp/Podfile")
+
         framework {
             baseName = "ComposeApp"
             isStatic = true
-            export(libs.kmp.lifecycle.viewmodel)
+            linkerOpts("-lsqlite3", "-ObjC")
             export(libs.kmp.lifecycle.runtime)
-            linkerOpts("-lsqlite3")
+            export(libs.kmp.lifecycle.viewmodel)
+            export(libs.firebase.auth.kmp)
         }
     }
 
@@ -53,57 +56,43 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.compose.material.iconsExtended)
+
             implementation(projects.components)
             implementation(projects.domain)
             implementation(projects.data)
+            implementation(projects.dataCore)
             implementation(projects.session)
             implementation(projects.featureLogin)
-            implementation(projects.dataCore)
-            implementation(libs.kmp.navigation)
-            api(libs.kmp.lifecycle.viewmodel)
-            api(libs.kmp.lifecycle.runtime)
+
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+            implementation(libs.kmp.navigation)
+            implementation(libs.kotlinx.coroutines.core)
+
+            api(libs.kmp.lifecycle.runtime)
+            api(libs.kmp.lifecycle.viewmodel)
+            api(libs.firebase.auth.kmp)
         }
 
         androidMain.dependencies {
-            implementation(libs.material)
-            implementation(compose.preview)
-            implementation(libs.androidx.appcompat)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.okhttp)
-        }
-
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
-        commonTest.dependencies {
-            implementation(kotlin("test"))
         }
     }
 }
 
 android {
     namespace = "com.example.petfinder"
-    compileSdk = 35
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    buildFeatures {
-        compose = true
-        buildConfig = true
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        val appName = project.findProperty("projectAppName")?.toString() ?: "PetFinder"
+        manifestPlaceholders["projectName"] = appName
     }
 
     packaging {
@@ -113,31 +102,28 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
+        getByName("release") {
             isMinifyEnabled = false
         }
     }
-}
 
-compose.resources {
-    publicResClass = true
-    packageOfResClass = "com.example.petfinder.resources"
-}
-configurations.configureEach {
-    // 1. FIX: "ignoreCase = true" es CRÍTICO.
-    // Las tareas de gradle a veces usan 'iosArm64' y otras 'IosArm64'.
-    val isNativeTarget = name.contains("ios", ignoreCase = true) ||
-        name.contains("apple", ignoreCase = true) ||
-        name.contains("native", ignoreCase = true)
-
-    if (isNativeTarget) {
-        // Exclusión Nuclear: Prohibido terminantemente que entre nada de Android en iOS
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-android")
-        exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-savedstate-android")
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-
+}
+configurations.all {
     resolutionStrategy {
-        force(libs.kotlinx.coroutines.core)
-        force(libs.kotlinx.coroutines.android)
+        dependencySubstitution {
+            substitute(module("com.google.firebase:firebase-auth-ktx"))
+                .using(module("com.google.firebase:firebase-auth:${libs.versions.firebase.auth.get()}"))
+
+            substitute(module("com.google.firebase:firebase-common-ktx"))
+                .using(module("com.google.firebase:firebase-common:22.1.1")) // Stable fallback
         }
+
+        // Prevent the -ktx modules from being resolved at all
+        exclude(group = "com.google.firebase", module = "firebase-auth-ktx")
+        exclude(group = "com.google.firebase", module = "firebase-common-ktx")
     }
+}

@@ -1,4 +1,4 @@
-val appName = providers.gradleProperty("projectAppName").get()
+val appName = providers.gradleProperty("projectAppName").getOrElse("PetFinder")
 rootProject.name = appName
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
