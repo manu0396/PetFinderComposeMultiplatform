@@ -57,10 +57,10 @@ jobs:
       - name: Build Xcode Project
         working-directory: iosApp
         run: |
-          xcodebuild -workspace iosApp.xcworkspace \
-                     -scheme iosApp \
-                     -sdk iphonesimulator \
-                     -configuration Debug \
-                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
-                     build CODE_SIGNING_ALLOWED=NO
-                     KOTLIN_PROJECT_PATH=":composeApp"
+            export KOTLIN_PROJECT_PATH=":composeApp"
+            xcodebuild -workspace iosApp.xcworkspace \
+                       -scheme iosApp \
+                       -sdk iphonesimulator \
+                       -configuration Debug \
+                       -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+                       build CODE_SIGNING_ALLOWED=NO
