@@ -4,17 +4,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.cocoapods)
-    alias(libs.plugins.buildkonfig)
 }
-buildkonfig {
-    packageName = "com.example.petfinder"
-    defaultConfigs {
-        // You can add your keys here or pull from local.properties
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "UNSPLASH_KEY", "your_key_here")
-    }
-}
-
-val buildDirPath: String = layout.buildDirectory.asFile.get().absolutePath
 
 kotlin {
     androidTarget {
@@ -48,12 +38,10 @@ kotlin {
             export(libs.kmp.lifecycle.viewmodel)
             export(project(":components"))
             binaryOption("bundleId", "com.example.petfinder.shared")
-            linkerOpts(
-                "-lsqlite3",
-                "-ObjC"
-            )
+            linkerOpts("-lsqlite3", "-ObjC")
         }
         extraSpecAttributes["pod_target_xcconfig"] = "{ 'BUILD_LIBRARIES_FOR_DISTRIBUTION' => 'YES' }"
+
         pod("FirebaseCore") {
             version = "11.6.0"
             packageName = "firebase.core.native"
@@ -67,23 +55,23 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":components"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(projects.components)
+
+            api(projects.components)
             implementation(projects.domain)
             implementation(projects.data)
             implementation(projects.dataCore)
             implementation(projects.session)
             implementation(projects.featureLogin)
+            implementation(projects.environment)
 
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
-
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
@@ -140,12 +128,8 @@ tasks.named<Delete>("clean") {
 tasks.register<Copy>("installGitHooks") {
     description = "Installs git hooks from the .github/hooks directory."
     group = "verification"
-
-    // Pointing to your specific location
     from(file(".github/hooks/pre-push"))
     into(file("${rootProject.rootDir}/.git/hooks"))
-
-    // Modern Gradle API for Unix permissions (rwxr-xr-x)
     filePermissions {
         unix("rwxr-xr-x")
     }
@@ -156,7 +140,6 @@ configurations.all {
         dependencySubstitution {
             substitute(module("com.google.firebase:firebase-auth-ktx"))
                 .using(module("com.google.firebase:firebase-auth:${libs.versions.firebase.auth.get()}"))
-
             substitute(module("com.google.firebase:firebase-common-ktx"))
                 .using(module("com.google.firebase:firebase-common:22.1.1"))
         }

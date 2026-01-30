@@ -83,15 +83,20 @@ class AnimalViewModel(
 
     private fun observeRepositoryResults() {
         viewModelScope.launch(errorHandler) {
-            repository.searchResults.collect { animals ->
-                _uiState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        animals = animals,
-                        error = if (animals.isEmpty()) UiText.Resource(Res.string.msg_unfound) else null
-                    )
+            repository.searchResults
+                .catch { e ->
+                    logger.e(TAG, "Flow Error", e)
+                    _uiState.update { it.copy(error = UiText.Resource(Res.string.error_unexpected)) }
                 }
-            }
+                .collect { animals ->
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            animals = animals,
+                            error = if (animals.isEmpty()) UiText.Resource(Res.string.msg_unfound) else null
+                        )
+                    }
+                }
         }
     }
 
@@ -104,10 +109,20 @@ class AnimalViewModel(
         if (finalQuery.isBlank()) return
 
         _uiState.update { it.copy(isLoading = true, error = null) }
+
         viewModelScope.launch(errorHandler) {
-            val result = getAnimalsUseCase(finalQuery)
-            if (result.isFailure) {
-                _uiState.update { it.copy(isLoading = false, error = UiText.Resource(Res.string.error_unexpected)) }
+            try {
+                val result = getAnimalsUseCase(finalQuery)
+                if (result.isFailure) {
+                    _uiState.update {
+                        it.copy(isLoading = false, error = UiText.Resource(Res.string.error_unexpected))
+                    }
+                }
+            } catch (e: Exception) {
+                logger.e(TAG, "Search Exception", e)
+                _uiState.update {
+                    it.copy(isLoading = false, error = UiText.Resource(Res.string.error_unexpected))
+                }
             }
         }
     }

@@ -10,7 +10,8 @@ import com.example.domain.repository.FavoriteRepository
 import com.example.domain.useCase.GetAnimalImagesUseCase
 import com.example.domain.useCase.GetFavoritesUseCase
 import com.example.domain.useCase.ToggleFavoriteUseCase
-import com.example.petfinder.BuildKonfig
+import com.example.environment.config.EnvironmentConfig
+import com.example.environment.di.environmentModule
 import com.example.petfinder.viewmodel.AnimalViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
@@ -35,7 +36,9 @@ val viewModelModule = module {
 val appModule = module {
     single<FavoriteRepository> { FavoriteRepositoryImpl(get(), get()) }
     single<AnimalRepository> { AnimalRepositoryImpl(get(), get(), get()) }
-    single(named("UNSPLASH_KEY")) { BuildKonfig.UNSPLASH_KEY }
+    single(named("UNSPLASH_KEY")) {
+        get<EnvironmentConfig>().apiKey
+    }
 }
 
 fun initKoin(
@@ -45,6 +48,7 @@ fun initKoin(
     printLogger(Level.DEBUG)
     appDeclaration()
     modules(
+        environmentModule,
         appModule,
         networkModule,
         dataModule,
