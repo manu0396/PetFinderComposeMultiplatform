@@ -56,7 +56,6 @@ jobs:
 
       - name: Build Xcode Project
         working-directory: iosApp
-        # FIX: Changed "iPhone 15" to "iPhone 16" to match available simulators
         run: |
           xcodebuild -workspace iosApp.xcworkspace \
                      -scheme iosApp \
