@@ -4,7 +4,6 @@ import com.example.data.remote.UnsplashRemoteDataSource
 import com.example.domain.util.AppLogger
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import com.example.petfinder.BuildKonfig
 import platform.Foundation.NSLog
 
 class IosLogger : AppLogger {
