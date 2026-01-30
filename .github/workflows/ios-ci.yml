@@ -63,3 +63,4 @@ jobs:
                      -configuration Debug \
                      -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
                      build CODE_SIGNING_ALLOWED=NO
+                     KOTLIN_PROJECT_PATH=":composeApp"
