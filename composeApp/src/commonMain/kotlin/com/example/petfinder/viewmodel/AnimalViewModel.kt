@@ -84,17 +84,18 @@ class AnimalViewModel(
     private fun observeRepositoryResults() {
         viewModelScope.launch(errorHandler) {
             repository.searchResults
-                .catch { e ->
-                    logger.e(TAG, "Flow Error", e)
-                    _uiState.update { it.copy(error = UiText.Resource(Res.string.error_unexpected)) }
-                }
                 .collect { animals ->
-                    _uiState.update { state ->
-                        state.copy(
-                            isLoading = false,
-                            animals = animals,
-                            error = if (animals.isEmpty()) UiText.Resource(Res.string.msg_unfound) else null
-                        )
+                    try {
+                        _uiState.update { state ->
+                            state.copy(
+                                isLoading = false,
+                                animals = animals,
+                                error = if (animals.isEmpty()) UiText.Resource(Res.string.msg_unfound) else null
+                            )
+                        }
+                    } catch (e: Exception) {
+                        logger.e(TAG, "Error processing results", e)
+                        _uiState.update { it.copy(error = UiText.Resource(Res.string.error_unexpected)) }
                     }
                 }
         }
